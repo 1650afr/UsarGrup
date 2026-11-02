@@ -4,7 +4,7 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCD2Qk5SfI544QCeP5pZaLblSr_glfDacU",
+  apiKey: "AIzaSyCD2Qk5SfI544QCeP5hZaLblSr_glfDacU",
   authDomain: "usargrup.firebaseapp.com",
   projectId: "usargrup",
   storageBucket: "usargrup.firebasestorage.app",

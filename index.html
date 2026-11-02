@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#123c32"><title>UsarGrup</title><link rel="stylesheet" href="./styles.css"></head>
+<body>
+<header><a class="brand" href="./"><b>U</b><span>UsarGrup<small>Ruang koordinasi dan pembinaan</small></span></a><span>v1.0.0</span></header>
+<main>
+<section id="auth-panel" class="panel auth">
+<p class="eyebrow">SELAMAT DATANG</p><h1>Mulai bersama UsarGrup</h1><p class="muted">Masuk ke akun atau daftarkan akun baru. Pendaftaran baru berstatus menunggu verifikasi.</p>
+<nav><button id="tab-login" class="active" type="button">Masuk</button><button id="tab-register" type="button">Daftar akun</button></nav>
+<form id="login-form"><label>Email</label><input id="login-email" type="email" autocomplete="username" required placeholder="nama@email.com"><label>Kata sandi</label><input id="login-password" type="password" autocomplete="current-password" required><button class="primary">Masuk</button><button id="forgot-password" class="link" type="button">Lupa kata sandi?</button></form>
+<form id="register-form" hidden><label>Nama lengkap</label><input id="register-name" required maxlength="100"><label>Email</label><input id="register-email" type="email" required><label>Kata sandi</label><input id="register-password" type="password" minlength="8" required><button class="primary">Daftar akun</button><p class="muted small">Akun baru menunggu verifikasi pengurus.</p></form>
+<p id="auth-message" aria-live="polite"></p></section>
+<section id="app-panel" class="panel" hidden><div class="welcome"><div><p class="eyebrow">BERANDA</p><h1 id="welcome-title">Selamat datang</h1><p id="user-email" class="muted"></p></div><button id="logout-button" type="button">Keluar</button></div>
+<div class="notice"><b>Status akun: Menunggu verifikasi</b><p>Profil dan keanggotaan akan dilengkapi setelah tahap pengaturan berikutnya.</p></div><h2>Menu UsarGrup</h2>
+<div class="grid"><article><b>01</b><strong>Data UPA dan Grup</strong><small>Identitas dan struktur kelompok</small></article><article><b>02</b><strong>Data Anggota</strong><small>Profil dan keanggotaan</small></article><article><b>03</b><strong>Mutabaah Yaumiyah</strong><small>Pencatatan amalan harian</small></article><article><b>04</b><strong>Jadwal Kegiatan</strong><small>Agenda dan kalender</small></article><article><b>05</b><strong>Absensi</strong><small>Kehadiran kegiatan</small></article><article><b>06</b><strong>Laporan Kegiatan</strong><small>Arsip dan rekap kegiatan</small></article></div><p class="muted small">Kerangka awal. Menu diaktifkan bertahap setelah struktur data dan hak akses diuji.</p></section>
+</main><footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.0.0</footer><script type="module" src="./app.js"></script></body></html>

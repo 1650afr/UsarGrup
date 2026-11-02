@@ -1,0 +1,15 @@
+import { auth, db } from "./firebase.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+const $ = id => document.getElementById(id);
+const authPanel = $("auth-panel"), appPanel = $("app-panel"), msg = $("auth-message");
+function message(t, kind=""){msg.textContent=t;msg.className=kind;}
+function loginTab(){ $("login-form").hidden=false;$("register-form").hidden=true;$("tab-login").classList.add("active");$("tab-register").classList.remove("active");message("");}
+$("tab-login").onclick=loginTab;
+$("tab-register").onclick=()=>{$("login-form").hidden=true;$("register-form").hidden=false;$("tab-login").classList.remove("active");$("tab-register").classList.add("active");message("");};
+$("login-form").onsubmit=async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;message("Sedang masuk...");try{await signInWithEmailAndPassword(auth,$("login-email").value.trim(),$("login-password").value);message("");}catch(x){message(errorText(x),"error");}finally{b.disabled=false;}};
+$("register-form").onsubmit=async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;message("Sedang membuat akun...");const name=$("register-name").value.trim(),email=$("register-email").value.trim();try{const c=await createUserWithEmailAndPassword(auth,email,$("register-password").value);await updateProfile(c.user,{displayName:name});await setDoc(doc(db,"users",c.user.uid),{uid:c.user.uid,displayName:name,email,status:"pending",requestedRole:"anggota",createdAt:serverTimestamp(),updatedAt:serverTimestamp()});message("Pendaftaran berhasil. Akun menunggu verifikasi pengurus.","success");}catch(x){message(errorText(x),"error");}finally{b.disabled=false;}};
+$("forgot-password").onclick=async()=>{const email=$("login-email").value.trim();if(!email){message("Isi email terlebih dahulu.","error");return;}try{await sendPasswordResetEmail(auth,email);message("Jika email terdaftar, tautan pengaturan ulang kata sandi akan dikirim.","success");}catch(x){message(errorText(x),"error");}};
+$("logout-button").onclick=()=>signOut(auth);
+onAuthStateChanged(auth,user=>{if(user){authPanel.hidden=true;appPanel.hidden=false;$("welcome-title").textContent="Assalamu'alaikum, "+(user.displayName||"Pengguna");$("user-email").textContent=user.email||"";}else{appPanel.hidden=true;authPanel.hidden=false;loginTab();}});
+function errorText(e){const m={"auth/email-already-in-use":"Email sudah terdaftar. Silakan masuk.","auth/invalid-email":"Format email tidak valid.","auth/weak-password":"Gunakan kata sandi minimal 8 karakter.","auth/invalid-credential":"Email atau kata sandi tidak sesuai.","auth/too-many-requests":"Terlalu banyak percobaan. Coba lagi nanti.","auth/network-request-failed":"Periksa koneksi internet.","permission-denied":"Akses database ditolak. Periksa Firestore Security Rules."};return m[e.code]||"Terjadi kendala: "+(e.message||e.code);}

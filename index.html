@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="id">
 <head>
@@ -5,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#123f35">
   <title>UsarGrup</title>
-  <link rel="stylesheet" href="./styles.css?v=1.4.0">
+  <link rel="stylesheet" href="./styles.css?v=1.5.0">
 </head>
 <body>
 <header class="topbar">
@@ -14,10 +15,11 @@
     <h1>UsarGrup</h1>
     <p>Ruang koordinasi dan pembinaan</p>
   </div>
-  <span class="version">v1.4.0</span>
+  <span class="version">v1.5.0</span>
 </header>
 
 <main class="shell">
+  <!-- AUTENTIKASI -->
   <section id="auth-panel" class="panel auth">
     <p class="eyebrow">SELAMAT DATANG</p>
     <h2>Masuk ke UsarGrup</h2>
@@ -56,6 +58,7 @@
     <p id="auth-message" class="message"></p>
   </section>
 
+  <!-- APLIKASI -->
   <section id="app-panel" class="panel" hidden>
     <div class="welcome">
       <div>
@@ -331,6 +334,123 @@
       </section>
     </section>
 
+    <!-- MODUL DATA KELOMPOK v1.5.0 -->
+    <section id="groups-admin-view" hidden>
+      <div class="heading">
+        <div>
+          <p class="eyebrow">STRUKTUR ORGANISASI</p>
+          <h2>Data Kelompok</h2>
+        </div>
+        <span id="group-count" class="pill">0 kelompok</span>
+      </div>
+
+      <p class="muted">
+        Kelola kelompok berdasarkan UPA, jenis kelompok, kelompok induk, dan ketua kelompok.
+      </p>
+
+      <form id="group-form" class="form-card">
+        <h3 id="group-form-title">Tambah Kelompok</h3>
+        <input id="group-edit-id" type="hidden">
+
+        <label for="group-name">Nama kelompok</label>
+        <input id="group-name" maxlength="120" required placeholder="Contoh: Kelompok Al-Falah">
+
+        <label for="group-type">Jenis kelompok</label>
+        <select id="group-type" required>
+          <option value="">Pilih jenis kelompok</option>
+          <option value="Muntazhim">Muntazhim</option>
+          <option value="Muntashib">Muntashib</option>
+          <option value="Muayyid">Muayyid</option>
+          <option value="Muhib">Muhib</option>
+          <option value="Tamhidi">Tamhidi</option>
+        </select>
+
+        <label for="group-upa">UPA</label>
+        <select id="group-upa" required>
+          <option value="">Pilih UPA</option>
+        </select>
+
+        <label for="group-parent">Kelompok induk (opsional)</label>
+        <select id="group-parent">
+          <option value="">Tidak memiliki kelompok induk</option>
+        </select>
+        <p class="muted small">
+          Muntazhim dapat menjadi induk semua jenis kelompok.
+          Muntashib dapat menjadi induk Muayyid, Muhib, dan Tamhidi.
+        </p>
+
+        <label for="group-leader">Ketua kelompok (opsional)</label>
+        <select id="group-leader">
+          <option value="">Pilih ketua kelompok</option>
+        </select>
+
+        <div class="actions">
+          <button id="group-submit" class="primary" type="submit">Simpan Kelompok</button>
+          <button id="group-cancel" class="secondary" type="button" hidden>Batal edit</button>
+        </div>
+      </form>
+
+      <div class="heading list-heading">
+        <h3>Daftar Kelompok</h3>
+        <button id="group-refresh" class="secondary" type="button">Muat ulang</button>
+      </div>
+
+      <div class="filters">
+        <input id="group-search" type="search" placeholder="Cari nama kelompok atau ketua">
+        <select id="group-filter-upa">
+          <option value="">Semua UPA</option>
+        </select>
+        <select id="group-filter-type">
+          <option value="">Semua jenis kelompok</option>
+          <option value="Muntazhim">Muntazhim</option>
+          <option value="Muntashib">Muntashib</option>
+          <option value="Muayyid">Muayyid</option>
+          <option value="Muhib">Muhib</option>
+          <option value="Tamhidi">Tamhidi</option>
+        </select>
+        <select id="group-filter-status">
+          <option value="">Semua status</option>
+          <option value="active">Aktif</option>
+          <option value="inactive">Tidak aktif</option>
+        </select>
+      </div>
+
+      <p id="group-message" class="message"></p>
+      <div id="group-list" class="stack"></div>
+
+      <!-- KEANGGOTAAN KELOMPOK -->
+      <section id="group-membership-view" class="form-card" hidden>
+        <div class="heading">
+          <div>
+            <p class="eyebrow">KEANGGOTAAN</p>
+            <h3 id="membership-group-title">Anggota Kelompok</h3>
+          </div>
+          <span id="group-membership-count" class="pill">0 anggota</span>
+        </div>
+
+        <input id="membership-group-id" type="hidden">
+
+        <form id="group-membership-form">
+          <label for="membership-member">Pilih anggota UPA</label>
+          <select id="membership-member" required>
+            <option value="">Pilih anggota</option>
+          </select>
+
+          <div class="actions">
+            <button id="membership-submit" class="primary" type="submit">
+              Tambahkan Anggota
+            </button>
+            <button id="membership-close" class="secondary" type="button">
+              Tutup
+            </button>
+          </div>
+        </form>
+
+        <p id="membership-message" class="message"></p>
+        <div id="group-membership-list" class="stack"></div>
+      </section>
+    </section>
+
     <!-- BERANDA ANGGOTA -->
     <section id="member-view" hidden>
       <p class="eyebrow">BERANDA ANGGOTA</p>
@@ -352,8 +472,8 @@
   </section>
 </main>
 
-<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.4.0</footer>
+<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.5.0</footer>
 
-<script type="module" src="./app.js?v=1.4.0"></script>
+<script type="module" src="./app.js?v=1.5.0"></script>
 </body>
 </html>

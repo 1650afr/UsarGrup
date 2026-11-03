@@ -1,4 +1,3 @@
-
 import { auth, db } from "./firebase.js";
 
 import {
@@ -247,8 +246,7 @@ onAuthStateChanged(auth, async user => {
 
   $("welcome-title").textContent =
     "Assalamu'alaikum, " + (user.displayName || "Pengguna");
-
-  $("user-email").textContent = user.email || "";
+    $("user-email").textContent = user.email || "";
 
   hideViews();
 
@@ -495,11 +493,9 @@ async function loadUpas() {
   const list = $("upa-list");
   list.replaceChildren();
   msg($("upa-message"), "Memuat data UPA...");
-
   try {
     const snapshot = await getDocs(collection(db, "upas"));
-
-    upaCache = snapshot.docs.map(d => ({
+        upaCache = snapshot.docs.map(d => ({
       id: d.id,
       ...d.data()
     }));
@@ -508,6 +504,10 @@ async function loadUpas() {
 
     refreshUpaSelectors();
     refreshAdminUPASelectors();
+    refreshGroupUPASelector();
+    refreshGroupParentSelector();
+    refreshGroupLeaderSelector();
+    refreshGroupFilters();
 
     if (!upaCache.length) {
       const p = document.createElement("p");
@@ -744,7 +744,7 @@ $("upa-admin-form").onsubmit = async event => {
     await updateDoc(userRef, {
       role: "admin_upa",
       upaId,
-      namaUPA: selectedUPA.namaUPA || "",
+          namaUPA: selectedUPA.namaUPA || "",
       updatedAt: serverTimestamp(),
       updatedBy: currentUser.uid
     });
@@ -994,7 +994,7 @@ function renderMembers() {
     edit.textContent = "Edit";
     edit.onclick = () => {
       $("member-edit-id").value = member.id;
-      $("member-name").value = member.nama || "";
+            $("member-name").value = member.nama || "";
       $("member-phone").value = member.nomorHP || "";
       $("member-email").value = member.email || "";
       $("member-upa").value = member.upaId || "";
@@ -1243,8 +1243,7 @@ function renderAdminUPAMembers() {
     edit.textContent = "Edit";
     edit.onclick = () => {
       $("admin-upa-member-edit-id").value = member.id;
-      $("admin-upa-member-name").value = member.nama || "";
-      $("admin-upa-member-phone").value = member.nomorHP || "";
+      $("admin-upa-member-name").value = member.nama || "";      $("admin-upa-member-phone").value = member.nomorHP || "";
       $("admin-upa-member-email").value = member.email || "";
       $("admin-upa-member-position").value = member.jabatan || "";
       $("admin-upa-member-notes").value = member.keterangan || "";
@@ -1329,7 +1328,7 @@ function getGroupUPAName(upaId) {
 }
 
 function getActiveMembersForUPA(upaId) {
-  const source = isAdminUtama() ? memberCache : adminUpaMemberCache;
+  const source = groupMemberCache;
 
   return source
     .filter(m => m.upaId === upaId && m.status === "active")
@@ -1358,6 +1357,37 @@ function fillSelect(select, placeholder, rows, labelFn, valueFn) {
 
   if ([...select.options].some(o => o.value === oldValue)) {
     select.value = oldValue;
+  }
+}
+
+function refreshGroupFilters() {
+  const select = $("group-filter-upa");
+  if (!select) return;
+
+  const oldValue = select.value;
+  select.replaceChildren(new Option("Semua UPA", ""));
+
+  const rows = isAdminUPA()
+    ? (assignedUPA ? [assignedUPA] : [])
+    : [...upaCache];
+
+  rows
+    .sort((a, b) =>
+      (a.namaUPA || "").localeCompare(b.namaUPA || "", "id")
+    )
+    .forEach(upa => {
+      select.add(new Option(upa.namaUPA || "UPA", upa.id));
+    });
+
+  if ([...select.options].some(option => option.value === oldValue)) {
+    select.value = oldValue;
+  }
+
+  if (isAdminUPA() && assignedUPA) {
+    select.value = assignedUPA.id;
+    select.disabled = true;
+  } else {
+    select.disabled = false;
   }
 }
 
@@ -1463,6 +1493,8 @@ function resetGroupForm() {
   }
 
   refreshGroupParentSelector();
+  refreshGroupLeaderSelector();
+      }
   refreshGroupLeaderSelector();
 }
 
@@ -1667,7 +1699,9 @@ async function loadGroups() {
     refreshGroupParentSelector();
     refreshGroupLeaderSelector();
     refreshGroupMembershipMemberSelector();
+    refreshGroupFilters();
     renderGroups();
+    renderGroupMemberships();
 
     msg($("group-message"), "");
 
@@ -1711,8 +1745,7 @@ function renderGroups() {
     p.className = "muted";
     p.textContent = groupCache.length
       ? "Tidak ada kelompok yang sesuai dengan pencarian atau filter."
-      : "Belum ada kelompok. Silakan tambahkan kelompok melalui formulir.";
-    list.append(p);
+          list.append(p);
     return;
   }
 
@@ -1906,26 +1939,34 @@ $("group-membership-form").onsubmit = async event => {
       throw new Error("Anggota harus aktif dan berasal dari UPA yang sama.");
     }
 
-    const duplicate = groupMembershipCache.some(m =>
-      m.groupId === groupId &&
-      m.memberId === memberId &&
-      m.status === "active"
+    const existingMembership = groupMembershipCache.find(m =>
+      m.groupId === groupId && m.memberId === memberId
     );
 
-    if (duplicate) {
+    if (existingMembership?.status === "active") {
       throw new Error("Anggota tersebut sudah terdaftar aktif pada kelompok ini.");
     }
 
-    await addDoc(collection(db, "group_memberships"), {
-      groupId,
-      memberId,
-      upaId: group.upaId,
-      namaAnggota: member.nama || "",
-      namaKelompok: group.namaKelompok || "",
-      status: "active",
-      createdAt: serverTimestamp(),
-      createdBy: currentUser.uid
-    });
+    if (existingMembership?.status === "inactive") {
+      await updateDoc(doc(db, "group_memberships", existingMembership.id), {
+        status: "active",
+        updatedAt: serverTimestamp(),
+        updatedBy: currentUser.uid
+      });
+    } else {
+      await addDoc(collection(db, "group_memberships"), {
+        groupId,
+        memberId,
+        upaId: group.upaId,
+        namaAnggota: member.nama || "",
+        namaKelompok: group.namaKelompok || "",
+        status: "active",
+        createdAt: serverTimestamp(),
+        createdBy: currentUser.uid,
+        updatedAt: serverTimestamp(),
+        updatedBy: currentUser.uid
+      });
+    }
 
     msg($("membership-message"), "Anggota berhasil dimasukkan ke kelompok.", "success");
 
@@ -1953,8 +1994,7 @@ function renderGroupMemberships() {
 
   const groupId = $("membership-group-id").value;
   const group = groupById(groupId);
-
-  if (!group) {
+    if (!group) {
     const p = document.createElement("p");
     p.className = "muted";
     p.textContent = "Pilih kelompok terlebih dahulu.";

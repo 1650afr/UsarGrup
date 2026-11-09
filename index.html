@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#123f35">
   <title>UsarGrup</title>
-  <link rel="stylesheet" href="./styles.css?v=1.6.0">
+  <link rel="stylesheet" href="./styles.css?v=1.7.0">
 </head>
 <body>
 <header class="topbar">
   <div class="mark">U</div><div><h1>UsarGrup</h1><p>Ruang koordinasi dan pembinaan</p></div>
-  <span class="version">v1.6.0</span>
+  <span class="version">v1.7.0</span>
 </header>
 <main class="shell">
 <section id="auth-panel" class="panel auth">
@@ -85,6 +85,11 @@
       <select id="member-filter-upa"><option value="">Semua UPA</option></select>
       <select id="member-filter-status"><option value="">Semua status</option><option value="active">Aktif</option><option value="inactive">Tidak aktif</option></select></div>
     <p id="member-message" class="message"></p><div id="member-list" class="stack"></div>
+    <section id="member-history-panel" class="form-card" hidden>
+      <div class="heading"><h3 id="member-history-title">Riwayat Anggota</h3><button id="member-history-close" class="secondary" type="button">Tutup</button></div>
+      <p class="muted">Catatan mutasi UPA, perubahan data, dan perubahan status sejak v1.7.0.</p>
+      <div id="member-history-list" class="stack"></div>
+    </section>
   </section>
 
   <section id="admin-upa-view" hidden><div class="heading"><div><p class="eyebrow">PANEL PENGELOLA UPA</p><h2 id="admin-upa-title">Admin UPA</h2></div><span id="admin-upa-status" class="pill">Aktif</span></div>
@@ -162,6 +167,6 @@
   </section>
 </section>
 </main>
-<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.6.0</footer>
-<script type="module" src="./app.js?v=1.6.0"></script>
+<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.7.0</footer>
+<script type="module" src="./app.js?v=1.7.0"></script>
 </body></html>

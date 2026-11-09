@@ -892,13 +892,21 @@ $("member-form").onsubmit = async event => {
 
   try {
     if (id) {
+      const before = memberCache.find(m => m.id === id);
       await updateDoc(doc(db, "members", id), data);
+      if (before) {
+        const changes = {};
+        if (before.upaId !== data.upaId) changes.UPA = `${before.namaUPA || before.upaId} → ${data.namaUPA || data.upaId}`;
+        if (before.nama !== data.nama) changes.Nama = `${before.nama} → ${data.nama}`;
+        if (before.jabatan !== data.jabatan) changes.Jabatan = `${before.jabatan || "-"} → ${data.jabatan || "-"}`;
+        await recordMemberHistory({...before,id}, "Perubahan data anggota", changes);
+        if (before.upaId !== data.upaId) await recordMemberHistory({...before,id,upaId:data.upaId,namaUPA:data.namaUPA}, "Mutasi antar-UPA", changes);
+      }
     } else {
-      await addDoc(collection(db, "members"), {
-        ...data,
-        createdAt: serverTimestamp(),
-        createdBy: currentUser.uid
+      const created = await addDoc(collection(db, "members"), {
+        ...data, createdAt: serverTimestamp(), createdBy: currentUser.uid
       });
+      await recordMemberHistory({id:created.id,...data}, "Anggota ditambahkan", {UPA:data.namaUPA || data.upaId});
     }
 
     msg(
@@ -1020,7 +1028,11 @@ function renderMembers() {
     toggle.onclick = () =>
       toggleMember(member.id, member.status === "inactive" ? "active" : "inactive", toggle);
 
-    actions.append(edit, toggle);
+    const history = document.createElement("button");
+    history.className = "secondary";
+    history.textContent = "Riwayat";
+    history.onclick = () => showMemberHistory(member);
+    actions.append(edit, toggle, history);
     card.append(info, actions);
     list.append(card);
   });
@@ -1041,6 +1053,8 @@ async function toggleMember(id, status, button) {
       updatedAt: serverTimestamp(),
       updatedBy: currentUser.uid
     });
+    const changedMember = memberCache.find(m => m.id === id);
+    if (changedMember) await recordMemberHistory(changedMember, status === "inactive" ? "Anggota dinonaktifkan" : "Anggota diaktifkan kembali", {Status:status});
 
     await loadMembers();
     await loadGroups();
@@ -1138,13 +1152,16 @@ $("admin-upa-member-form").onsubmit = async event => {
       }
 
       await updateDoc(doc(db, "members", id), data);
+      const changes = {};
+      if (existing.nama !== data.nama) changes.Nama = `${existing.nama} → ${data.nama}`;
+      if (existing.jabatan !== data.jabatan) changes.Jabatan = `${existing.jabatan || "-"} → ${data.jabatan || "-"}`;
+      await recordMemberHistory({...existing,id}, "Perubahan data anggota", changes);
 
     } else {
-      await addDoc(collection(db, "members"), {
-        ...data,
-        createdAt: serverTimestamp(),
-        createdBy: currentUser.uid
+      const created = await addDoc(collection(db, "members"), {
+        ...data, createdAt: serverTimestamp(), createdBy: currentUser.uid
       });
+      await recordMemberHistory({id:created.id,...data}, "Anggota ditambahkan", {UPA:data.namaUPA || data.upaId});
     }
 
     msg(
@@ -1272,7 +1289,11 @@ function renderAdminUPAMembers() {
         toggle
       );
 
-    actions.append(edit, toggle);
+    const history = document.createElement("button");
+    history.className = "secondary";
+    history.textContent = "Riwayat";
+    history.onclick = () => showMemberHistory(member);
+    actions.append(edit, toggle, history);
     card.append(info, actions);
     list.append(card);
   });
@@ -1306,6 +1327,7 @@ async function toggleAdminUPAMember(id, status, button) {
       updatedAt: serverTimestamp(),
       updatedBy: currentUser.uid
     });
+    if (existing) await recordMemberHistory(existing, status === "inactive" ? "Anggota dinonaktifkan" : "Anggota diaktifkan kembali", {Status:status});
 
     await loadAdminUPAMembers();
     await loadGroups();
@@ -1320,7 +1342,7 @@ async function toggleAdminUPAMember(id, status, button) {
 }
 
 // ======================================================
-// MODUL DATA KELOMPOK v1.6.0
+// MODUL DATA KELOMPOK v1.7.0
 // ======================================================
 
 function groupUPAId() {
@@ -2122,12 +2144,12 @@ async function toggleGroupMembership(id, status, button) {
 }
 
 // ======================================================
-// AKHIR APP.JS v1.6.0
+// AKHIR APP.JS v1.7.0
 // ======================================================
 
 
 // ======================================================
-// PROFIL PRIBADI ANGGOTA v1.6.0
+// PROFIL PRIBADI ANGGOTA v1.7.0
 // ======================================================
 async function loadMyProfile() {
   const profile = currentProfile || {};
@@ -2166,3 +2188,55 @@ $("profile-form").addEventListener("submit", async event => {
     button.disabled = false;
   }
 });
+
+
+// ======================================================
+// MUTASI & RIWAYAT KEANGGOTAAN v1.7.0
+// ======================================================
+async function recordMemberHistory(member, action, changes = {}) {
+  const event = {
+    memberId: member.id,
+    namaAnggota: member.nama || "",
+    upaId: member.upaId || "",
+    namaUPA: member.namaUPA || "",
+    action,
+    changes,
+    actorUid: currentUser.uid,
+    actorRole: currentProfile?.role || "",
+    createdAt: serverTimestamp()
+  };
+  await addDoc(collection(db, "member_history"), event);
+}
+
+async function showMemberHistory(member) {
+  const area = $("member-history-panel");
+  area.hidden = false;
+  $("member-history-title").textContent = `Riwayat: ${member.nama || "Anggota"}`;
+  $("member-history-list").textContent = "Memuat riwayat...";
+  area.scrollIntoView({behavior:"smooth", block:"start"});
+  try {
+    const q = query(collection(db, "member_history"), where("memberId", "==", member.id));
+    const snap = await getDocs(q);
+    const events = snap.docs.map(d => ({id:d.id,...d.data()}))
+      .sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    const list = $("member-history-list");
+    list.replaceChildren();
+    if (!events.length) {
+      list.textContent = "Belum ada riwayat mutasi. Riwayat mulai tercatat sejak v1.7.0 dipasang.";
+      return;
+    }
+    events.forEach(item => {
+      const card=document.createElement("article"); card.className="status";
+      const heading=document.createElement("strong"); heading.textContent=item.action || "Perubahan";
+      const detail=document.createElement("p");
+      const when=item.createdAt?.toDate ? item.createdAt.toDate().toLocaleString("id-ID") : "Waktu tidak tersedia";
+      const changeText=Object.entries(item.changes || {}).map(([k,v])=>`${k}: ${v}`).join(" • ");
+      detail.textContent=[when,item.namaUPA,changeText].filter(Boolean).join(" — ");
+      card.append(heading,detail); list.append(card);
+    });
+  } catch(error) {
+    console.error(error);
+    $("member-history-list").textContent=err(error);
+  }
+}
+$("member-history-close").onclick=()=>{$("member-history-panel").hidden=true;};

@@ -1,22 +1,33 @@
-USARGRUP v1.6.0 — PAKET FILE UTUH
-==================================
-ISI: index.html, app.js, styles.css, firebase.js, firestore.rules.
+USARGRUP v1.7.0 — MUTASI & RIWAYAT KEANGGOTAAN
+=================================================
+Isi paket: index.html, app.js, styles.css, firebase.js, firestore.rules.
 
-PERHATIAN:
-- Cadangkan file repository dan Firestore Rules aktif sebelum mengganti.
-- Unggah empat file web (index.html, app.js, styles.css, firebase.js)
-  ke root repository 1650afr/UsarGrup, menggantikan file lama.
-- Buka Firebase Console > Firestore Database > Rules.
-  Tempel isi firestore.rules dan Publish.
-- Uji dengan akun anggota berstatus active:
-  profil terlihat, HP dan alamat tersimpan, refresh tetap tampil.
-- Uji bahwa akun anggota tidak dapat mengubah role/status/upaId,
-  dan admin utama serta admin UPA tetap menjalankan tugas v1.5.1.
-- Uji terlebih dahulu sebelum menganggap rilis produksi berhasil.
+FITUR BARU
+- Catatan penambahan anggota.
+- Riwayat perubahan nama dan jabatan.
+- Riwayat perpindahan antar-UPA (Admin Utama).
+- Riwayat aktif/nonaktif.
+- Tombol Riwayat pada daftar anggota Admin Utama dan Admin UPA.
+- Admin Utama dapat melihat seluruh riwayat; Admin UPA hanya riwayat UPA sendiri.
 
-BATASAN:
-- Profil mandiri disimpan pada users/{uid}, bukan members/{memberId}.
-- Keterkaitan otomatis akun login dengan data anggota/kelompok belum dibuat
-  karena belum ada relasi UID terverifikasi. Jangan menganggap data itu terhubung.
-- Pengujian Firebase secara langsung belum dilakukan di lingkungan ini.
-- firebase.js memakai konfigurasi proyek UsarGrup yang telah ada.
+PEMASANGAN
+1. Cadangkan seluruh file versi 1.6.0 dan Firestore Rules aktif.
+2. Ganti file index.html dan app.js pada root repository dengan file dari ZIP.
+3. Pertahankan styles.css dan firebase.js (ikut disertakan untuk paket utuh).
+4. Firebase Console > Firestore Database > Rules: tempel firestore.rules, lalu Publish.
+5. Deploy GitHub Pages dan tunggu selesai.
+
+PENGUJIAN WAJIB
+- Tambah anggota, edit nama/jabatan, nonaktifkan lalu aktifkan.
+- Buka tombol Riwayat dan pastikan setiap kejadian tampil.
+- Admin UPA hanya dapat membaca/menulis riwayat pada UPA sendiri.
+- Admin Utama dapat membaca riwayat lintas UPA.
+- Pastikan riwayat tidak dapat diedit atau dihapus.
+
+CATATAN PENTING
+- Riwayat mulai tercatat sejak v1.7.0 dipasang; perubahan sebelum tanggal pemasangan
+  tidak dapat direkonstruksi otomatis.
+- Perpindahan antar-UPA dicatat ketika Admin Utama mengubah UPA pada form data anggota.
+- Riwayat perpindahan kelompok (group_memberships) belum direkam pada iterasi ini.
+- Uji Firebase aktual belum dilakukan oleh pembuat paket. Jangan anggap rilis teruji
+  sebelum seluruh skenario pengujian di atas lulus.

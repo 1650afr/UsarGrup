@@ -200,6 +200,24 @@ service cloud.firestore {
         && canManageUPA(resource.data.upaId);
       allow delete: if false;
     }
+
+    // RIWAYAT MUTASI ANGGOTA — hanya admin yang dapat membaca/menulis
+    match /member_history/{historyId} {
+      allow read: if isAdminUtama()
+        || (isAdminUPA() && resource.data.upaId == profile().upaId);
+      allow create: if activeUser()
+        && (isAdminUtama() || (isAdminUPA() && request.resource.data.upaId == profile().upaId))
+        && request.resource.data.keys().hasOnly([
+          "memberId", "namaAnggota", "upaId", "namaUPA", "action",
+          "changes", "actorUid", "actorRole", "createdAt"
+        ])
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.memberId is string
+        && request.resource.data.upaId is string
+        && request.resource.data.action is string;
+      allow update, delete: if false;
+    }
+
     match /memberships/{membershipId} {
       allow read: if activeUser();
       allow write: if false;

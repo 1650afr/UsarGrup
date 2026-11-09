@@ -1,22 +1,104 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function profilePath(uid) { return /databases/$(database)/documents/users/$(uid); }
+    function hasProfile() { return signedIn() && exists(profilePath(request.auth.uid)); }
+    function profile() { return get(profilePath(request.auth.uid)).data; }
+    function activeUser() { return hasProfile() && profile().status == "active"; }
+    function isAdminUtama() { return activeUser() && profile().role == "admin_utama"; }
+    function isAdminUPA() {
+      return activeUser() && profile().role == "admin_upa"
+        && profile().upaId is string && profile().upaId.size() > 0;
+    }
+    function ownUPA(upaId) { return isAdminUPA() && profile().upaId == upaId; }
+    function canManageUPA(upaId) { return isAdminUtama() || ownUPA(upaId); }
 
-    function signedIn() {
-      return request.auth != null;
+    function validMemberData() {
+      return request.resource.data.keys().hasOnly([
+        "nama", "nomorHP", "email", "upaId", "namaUPA", "kodeUPA",
+        "jabatan", "keterangan", "status", "createdAt", "createdBy",
+        "updatedAt", "updatedBy"
+      ])
+      && request.resource.data.nama is string
+      && request.resource.data.nama.size() > 0
+      && request.resource.data.upaId is string
+      && request.resource.data.status in ["active", "inactive"];
+    }
+    function validGroupType(jenis) {
+      return jenis in ["Muntazhim", "Muntashib", "Muayyid", "Muhib", "Tamhidi"];
+    }
+    function validParentGroup(upaId, jenisAnak, parentId) {
+      return parentId == "" || parentId == null || (
+        exists(/databases/$(database)/documents/groups/$(parentId))
+        && get(/databases/$(database)/documents/groups/$(parentId)).data.upaId == upaId
+        && (
+          (
+            get(/databases/$(database)/documents/groups/$(parentId)).data.jenisKelompok == "Muntazhim"
+            && validGroupType(jenisAnak)
+          ) || (
+            get(/databases/$(database)/documents/groups/$(parentId)).data.jenisKelompok == "Muntashib"
+            && jenisAnak in ["Muayyid", "Muhib", "Tamhidi"]
+          )
+        )
+      );
+    }
+    function validGroupData() {
+      return request.resource.data.keys().hasOnly([
+        "namaKelompok", "jenisKelompok", "upaId", "namaUPA",
+        "parentGroupId", "ketuaId", "namaKetua", "status",
+        "createdAt", "createdBy", "updatedAt", "updatedBy"
+      ])
+      && request.resource.data.namaKelompok is string
+      && request.resource.data.namaKelompok.size() > 0
+      && request.resource.data.jenisKelompok is string
+      && validGroupType(request.resource.data.jenisKelompok)
+      && request.resource.data.upaId is string
+      && request.resource.data.upaId.size() > 0
+      && request.resource.data.parentGroupId is string
+      && request.resource.data.status in ["active", "inactive"]
+      && validParentGroup(
+        request.resource.data.upaId,
+        request.resource.data.jenisKelompok,
+        request.resource.data.parentGroupId
+      );
+    }
+    function validGroupMembershipReferences() {
+      return exists(/databases/$(database)/documents/groups/$(request.resource.data.groupId))
+        && exists(/databases/$(database)/documents/members/$(request.resource.data.memberId))
+        && get(/databases/$(database)/documents/groups/$(request.resource.data.groupId)).data.upaId
+           == request.resource.data.upaId
+        && get(/databases/$(database)/documents/members/$(request.resource.data.memberId)).data.upaId
+           == request.resource.data.upaId;
+    }
+    function validGroupMembershipData() {
+      return request.resource.data.keys().hasOnly([
+        "groupId", "memberId", "upaId", "namaAnggota", "namaKelompok",
+        "status", "createdAt", "createdBy", "updatedAt", "updatedBy"
+      ])
+      && request.resource.data.groupId is string
+      && request.resource.data.memberId is string
+      && request.resource.data.upaId is string
+      && request.resource.data.status in ["active", "inactive"]
+      && validGroupMembershipReferences();
     }
 
-    function isAdminUtama() {
+    function validOwnProfileUpdate(userId) {
       return signedIn()
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin_utama"
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == "active";
+        && request.auth.uid == userId
+        && resource.data.status == "active"
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "nomorHP", "alamat", "updatedAt"
+        ])
+        && request.resource.data.nomorHP is string
+        && request.resource.data.nomorHP.size() <= 30
+        && request.resource.data.alamat is string
+        && request.resource.data.alamat.size() <= 300
+        && request.resource.data.updatedAt == request.time;
     }
 
     match /users/{userId} {
-      allow read: if signedIn()
-        && (request.auth.uid == userId || isAdminUtama());
-
+      allow read: if signedIn() && (request.auth.uid == userId || isAdminUtama());
       allow create: if signedIn()
         && request.auth.uid == userId
         && request.resource.data.keys().hasOnly([
@@ -27,24 +109,101 @@ service cloud.firestore {
         && request.resource.data.status == "pending"
         && request.resource.data.requestedRole == "anggota"
         && request.resource.data.email == request.auth.token.email;
-
-      allow update: if isAdminUtama()
+      allow update: if (
+        isAdminUtama()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "status", "role", "reviewedAt", "reviewedBy", "updatedAt"
+          "status", "role", "reviewedAt", "reviewedBy", "updatedAt",
+          "upaId", "namaUPA", "updatedBy"
         ])
         && request.resource.data.status in ["pending", "active", "rejected", "inactive"]
         && (
           !("role" in request.resource.data)
           || request.resource.data.role in [
-            "anggota", "admin_upa", "pembimbing",
-            "naqib", "naqibah", "murobbi", "murobbiyah",
-            "muayyid", "muayyidah", "admin_utama"
+            "anggota", "admin_upa", "pembimbing", "naqib", "naqibah",
+            "murobbi", "murobbiyah", "admin_utama"
           ]
-        );
-
+        )
+      ) || validOwnProfileUpdate(userId);
       allow delete: if false;
     }
-
+    match /upas/{upaId} {
+      allow read: if activeUser() && (isAdminUtama() || ownUPA(upaId));
+      allow create: if isAdminUtama()
+        && request.resource.data.keys().hasOnly([
+          "namaUPA", "kodeUPA", "wilayah", "alamat", "ketuaUPA",
+          "status", "createdBy", "createdAt", "updatedAt"
+        ])
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.status == "active"
+        && request.resource.data.namaUPA is string
+        && request.resource.data.kodeUPA is string;
+      allow update: if isAdminUtama()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "namaUPA", "kodeUPA", "wilayah", "alamat", "ketuaUPA",
+          "status", "updatedAt"
+        ]);
+      allow delete: if false;
+    }
+    match /members/{memberId} {
+      allow read: if isAdminUtama()
+        || (isAdminUPA() && resource.data.upaId == profile().upaId);
+      allow create: if validMemberData() && (
+        (isAdminUtama() && request.resource.data.createdBy == request.auth.uid)
+        || (isAdminUPA()
+            && request.resource.data.upaId == profile().upaId
+            && request.resource.data.createdBy == request.auth.uid)
+      );
+      allow update: if validMemberData()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "nama", "nomorHP", "email", "upaId", "namaUPA", "kodeUPA",
+          "jabatan", "keterangan", "status", "updatedAt", "updatedBy"
+        ])
+        && request.resource.data.updatedBy == request.auth.uid
+        && (
+          isAdminUtama()
+          || (isAdminUPA()
+              && resource.data.upaId == profile().upaId
+              && request.resource.data.upaId == resource.data.upaId)
+        );
+      allow delete: if false;
+    }
+    match /groups/{groupId} {
+      allow read: if isAdminUtama()
+        || (isAdminUPA() && resource.data.upaId == profile().upaId);
+      allow create: if validGroupData()
+        && request.resource.data.createdBy == request.auth.uid
+        && canManageUPA(request.resource.data.upaId);
+      allow update: if validGroupData()
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "namaKelompok", "jenisKelompok", "parentGroupId", "ketuaId",
+          "namaKetua", "status", "updatedAt", "updatedBy"
+        ])
+        && canManageUPA(resource.data.upaId)
+        && request.resource.data.upaId == resource.data.upaId;
+      allow delete: if false;
+    }
+    match /group_memberships/{membershipId} {
+      allow read: if isAdminUtama()
+        || (isAdminUPA() && resource.data.upaId == profile().upaId);
+      allow create: if validGroupMembershipData()
+        && request.resource.data.createdBy == request.auth.uid
+        && canManageUPA(request.resource.data.upaId);
+      allow update: if validGroupMembershipData()
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "status", "updatedAt", "updatedBy"
+        ])
+        && request.resource.data.groupId == resource.data.groupId
+        && request.resource.data.memberId == resource.data.memberId
+        && request.resource.data.upaId == resource.data.upaId
+        && canManageUPA(resource.data.upaId);
+      allow delete: if false;
+    }
+    match /memberships/{membershipId} {
+      allow read: if activeUser();
+      allow write: if false;
+    }
     match /{document=**} {
       allow read, write: if false;
     }

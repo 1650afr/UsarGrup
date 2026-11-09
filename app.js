@@ -28,6 +28,7 @@ const $ = id => document.getElementById(id);
 
 let currentUser = null;
 let currentProfile = null;
+let memberProfileBusy = false;
 let busy = false;
 
 let upaCache = [];
@@ -100,7 +101,8 @@ function hideViews() {
     "admin-upa-members-view",
     "groups-admin-view",
     "group-membership-view",
-    "member-view"
+    "member-view",
+    "member-profile-view"
   ].forEach(id => {
     if ($(id)) $(id).hidden = true;
   });
@@ -305,6 +307,8 @@ onAuthStateChanged(auth, async user => {
 
     } else {
       $("member-view").hidden = false;
+      $("member-profile-view").hidden = false;
+      await loadMyProfile();
     }
 
   } catch (error) {
@@ -1316,7 +1320,7 @@ async function toggleAdminUPAMember(id, status, button) {
 }
 
 // ======================================================
-// MODUL DATA KELOMPOK v1.5.1
+// MODUL DATA KELOMPOK v1.6.0
 // ======================================================
 
 function groupUPAId() {
@@ -2118,5 +2122,47 @@ async function toggleGroupMembership(id, status, button) {
 }
 
 // ======================================================
-// AKHIR APP.JS v1.5.1
+// AKHIR APP.JS v1.6.0
 // ======================================================
+
+
+// ======================================================
+// PROFIL PRIBADI ANGGOTA v1.6.0
+// ======================================================
+async function loadMyProfile() {
+  const profile = currentProfile || {};
+  $("profile-name").textContent = profile.displayName || currentUser?.displayName || "-";
+  $("profile-email").textContent = profile.email || currentUser?.email || "-";
+  $("profile-role").textContent = profile.role || "anggota";
+  $("profile-phone").value = profile.nomorHP || "";
+  $("profile-address").value = profile.alamat || "";
+  $("profile-message").textContent = "";
+}
+
+$("profile-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!currentUser || memberProfileBusy || !currentProfile || currentProfile.status !== "active") return;
+  const phone = $("profile-phone").value.trim();
+  const address = $("profile-address").value.trim();
+  if (phone.length > 30 || address.length > 300) {
+    msg($("profile-message"), "Nomor HP maksimal 30 karakter dan alamat maksimal 300 karakter.", "error");
+    return;
+  }
+  const button = $("profile-submit");
+  memberProfileBusy = true;
+  button.disabled = true;
+  msg($("profile-message"), "Menyimpan profil...");
+  try {
+    await updateDoc(doc(db, "users", currentUser.uid), {
+      nomorHP: phone, alamat: address, updatedAt: serverTimestamp()
+    });
+    currentProfile = { ...currentProfile, nomorHP: phone, alamat: address };
+    msg($("profile-message"), "Profil berhasil diperbarui.", "success");
+  } catch (error) {
+    console.error(error);
+    msg($("profile-message"), err(error), "error");
+  } finally {
+    memberProfileBusy = false;
+    button.disabled = false;
+  }
+});

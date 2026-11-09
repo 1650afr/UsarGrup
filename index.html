@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#123f35">
   <title>UsarGrup</title>
-  <link rel="stylesheet" href="./styles.css?v=1.5.1">
+  <link rel="stylesheet" href="./styles.css?v=1.6.0">
 </head>
 <body>
 <header class="topbar">
   <div class="mark">U</div><div><h1>UsarGrup</h1><p>Ruang koordinasi dan pembinaan</p></div>
-  <span class="version">v1.5.1</span>
+  <span class="version">v1.6.0</span>
 </header>
 <main class="shell">
 <section id="auth-panel" class="panel auth">
@@ -136,6 +136,25 @@
   </section>
 
   <section id="member-view" hidden><p class="eyebrow">BERANDA ANGGOTA</p><h2>Menu UsarGrup</h2>
+
+    <section id="member-profile-view" class="form-card" hidden>
+      <div class="heading"><div><p class="eyebrow">AKUN SAYA</p><h3>Profil Saya</h3></div><span class="pill">Anggota</span></div>
+      <p class="muted">Nama dan email dikelola admin. Anda hanya dapat memperbarui nomor HP dan alamat.</p>
+      <div class="status">
+        <p><b>Nama lengkap</b><br><span id="profile-name">-</span></p>
+        <p><b>Email akun</b><br><span id="profile-email">-</span></p>
+        <p><b>Peran akun</b><br><span id="profile-role">anggota</span></p>
+      </div>
+      <form id="profile-form">
+        <label for="profile-phone">Nomor HP</label>
+        <input id="profile-phone" type="tel" maxlength="30" autocomplete="tel">
+        <label for="profile-address">Alamat tempat tinggal</label>
+        <textarea id="profile-address" rows="3" maxlength="300" autocomplete="street-address"></textarea>
+        <button id="profile-submit" class="primary" type="submit">Simpan Profil</button>
+      </form>
+      <p id="profile-message" class="message" aria-live="polite"></p>
+    </section>
+
     <div class="menu-grid"><article><b>01</b><h3>Data UPA dan Grup</h3><p>Identitas dan struktur kelompok</p></article>
       <article><b>02</b><h3>Data Anggota</h3><p>Profil dan keanggotaan</p></article>
       <article><b>03</b><h3>Mutabaah Yaumiyah</h3><p>Pencatatan amalan harian</p></article>
@@ -143,6 +162,6 @@
   </section>
 </section>
 </main>
-<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.5.1</footer>
-<script type="module" src="./app.js?v=1.5.1"></script>
+<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.6.0</footer>
+<script type="module" src="./app.js?v=1.6.0"></script>
 </body></html>

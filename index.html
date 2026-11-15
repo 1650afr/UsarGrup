@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#123f35">
   <title>UsarGrup</title>
-  <link rel="stylesheet" href="./styles.css?v=1.7.0">
+  <link rel="stylesheet" href="./styles.css?v=1.8.0">
 </head>
 <body>
 <header class="topbar">
   <div class="mark">U</div><div><h1>UsarGrup</h1><p>Ruang koordinasi dan pembinaan</p></div>
-  <span class="version">v1.7.0</span>
+  <span class="version">v1.8.0</span>
 </header>
 <main class="shell">
 <section id="auth-panel" class="panel auth">
@@ -47,7 +47,10 @@
 
   <section id="upa-admin-view" hidden>
     <div class="heading"><div><p class="eyebrow">DATA ORGANISASI</p><h2>Data UPA</h2></div><span id="upa-count" class="pill">0 UPA</span></div>
-    <form id="upa-form" class="form-card"><h3 id="upa-form-title">Tambah UPA</h3><input id="upa-edit-id" type="hidden">
+    <button id="upa-add-open" class="primary add-trigger" type="button">＋ Tambah UPA</button>
+    <dialog id="upa-dialog" class="form-dialog">
+      <div class="dialog-head"><h3>Tambah UPA</h3><button class="secondary dialog-close" type="button" aria-label="Tutup">Tutup</button></div>
+      <form id="upa-form" class="form-card"><h3 id="upa-form-title">Tambah UPA</h3><input id="upa-edit-id" type="hidden">
       <label for="upa-name">Nama UPA</label><input id="upa-name" maxlength="100" required>
       <label for="upa-code">Kode UPA</label><input id="upa-code" maxlength="30" required>
       <label for="upa-region">Wilayah</label><input id="upa-region" maxlength="100">
@@ -55,6 +58,7 @@
       <label for="upa-chair">Ketua UPA</label><input id="upa-chair" maxlength="100">
       <div class="actions"><button id="upa-submit" class="primary" type="submit">Simpan UPA</button><button id="upa-cancel" class="secondary" type="button" hidden>Batal edit</button></div>
     </form>
+    </dialog>
     <div class="heading list-heading"><h3>Daftar UPA</h3><button id="upa-refresh" class="secondary" type="button">Muat ulang</button></div>
     <p id="upa-message" class="message"></p><div id="upa-list" class="stack"></div>
   </section>
@@ -71,7 +75,10 @@
   </section>
 
   <section id="members-admin-view" hidden><div class="heading"><h2>Data Anggota</h2><span id="member-count" class="pill">0 anggota</span></div>
-    <form id="member-form" class="form-card"><h3 id="member-form-title">Tambah Anggota</h3><input id="member-edit-id" type="hidden">
+    <button id="member-add-open" class="primary add-trigger" type="button">＋ Tambah Anggota</button>
+    <dialog id="member-dialog" class="form-dialog">
+      <div class="dialog-head"><h3>Tambah Anggota</h3><button class="secondary dialog-close" type="button" aria-label="Tutup">Tutup</button></div>
+      <form id="member-form" class="form-card"><h3 id="member-form-title">Tambah Anggota</h3><input id="member-edit-id" type="hidden">
       <label for="member-name">Nama lengkap</label><input id="member-name" maxlength="120" required>
       <label for="member-phone">Nomor HP</label><input id="member-phone" type="tel" maxlength="30">
       <label for="member-email">Email</label><input id="member-email" type="email" maxlength="150">
@@ -80,6 +87,7 @@
       <label for="member-notes">Keterangan</label><textarea id="member-notes" rows="2" maxlength="500"></textarea>
       <div class="actions"><button id="member-submit" class="primary" type="submit">Simpan Anggota</button><button id="member-cancel" class="secondary" type="button" hidden>Batal edit</button></div>
     </form>
+    </dialog>
     <div class="heading list-heading"><h3>Daftar Anggota</h3><button id="member-refresh" class="secondary" type="button">Muat ulang</button></div>
     <div class="filters"><input id="member-search" type="search" placeholder="Cari nama, HP, atau email">
       <select id="member-filter-upa"><option value="">Semua UPA</option></select>
@@ -87,7 +95,7 @@
     <p id="member-message" class="message"></p><div id="member-list" class="stack"></div>
     <section id="member-history-panel" class="form-card" hidden>
       <div class="heading"><h3 id="member-history-title">Riwayat Anggota</h3><button id="member-history-close" class="secondary" type="button">Tutup</button></div>
-      <p class="muted">Catatan mutasi UPA, perubahan data, dan perubahan status sejak v1.7.0.</p>
+      <p class="muted">Catatan mutasi UPA, perubahan data, dan perubahan status sejak v1.8.0.</p>
       <div id="member-history-list" class="stack"></div>
     </section>
   </section>
@@ -95,6 +103,9 @@
   <section id="admin-upa-view" hidden><div class="heading"><div><p class="eyebrow">PANEL PENGELOLA UPA</p><h2 id="admin-upa-title">Admin UPA</h2></div><span id="admin-upa-status" class="pill">Aktif</span></div>
     <div class="status"><h3>UPA yang dikelola</h3><p id="admin-upa-identity" class="muted">Memuat identitas UPA...</p></div>
     <section id="admin-upa-members-view"><div class="heading"><h2>Anggota UPA Saya</h2><span id="admin-upa-member-count" class="pill">0 anggota</span></div>
+      <button id="admin-upa-member-add-open" class="primary add-trigger" type="button">＋ Tambah Anggota</button>
+    <dialog id="admin-upa-member-dialog" class="form-dialog">
+      <div class="dialog-head"><h3>Tambah Anggota</h3><button class="secondary dialog-close" type="button" aria-label="Tutup">Tutup</button></div>
       <form id="admin-upa-member-form" class="form-card"><h3 id="admin-upa-member-form-title">Tambah Anggota</h3><input id="admin-upa-member-edit-id" type="hidden">
         <label for="admin-upa-member-name">Nama lengkap</label><input id="admin-upa-member-name" maxlength="120" required>
         <label for="admin-upa-member-phone">Nomor HP</label><input id="admin-upa-member-phone" type="tel" maxlength="30">
@@ -103,6 +114,7 @@
         <label for="admin-upa-member-notes">Keterangan</label><textarea id="admin-upa-member-notes" rows="2" maxlength="500"></textarea>
         <div class="actions"><button id="admin-upa-member-submit" class="primary" type="submit">Simpan Anggota</button><button id="admin-upa-member-cancel" class="secondary" type="button" hidden>Batal edit</button></div>
       </form>
+    </dialog>
       <div class="heading list-heading"><h3>Daftar Anggota UPA</h3><button id="admin-upa-member-refresh" class="secondary" type="button">Muat ulang</button></div>
       <div class="filters"><input id="admin-upa-member-search" type="search" placeholder="Cari nama, HP, atau email">
         <select id="admin-upa-member-filter-status"><option value="">Semua status</option><option value="active">Aktif</option><option value="inactive">Tidak aktif</option></select></div>
@@ -114,7 +126,10 @@
   <section id="groups-admin-view" hidden>
     <div class="heading"><div><p class="eyebrow">STRUKTUR PEMBINAAN</p><h2>Pengelolaan Kelompok</h2></div><span id="group-count" class="pill">0 kelompok</span></div>
     <p class="muted">Kelola kelompok berdasarkan UPA dan tingkatan pembinaan.</p>
-    <form id="group-form" class="form-card"><h3 id="group-form-title">Tambah Kelompok</h3><input id="group-edit-id" type="hidden">
+    <button id="group-add-open" class="primary add-trigger" type="button">＋ Tambah Kelompok</button>
+    <dialog id="group-dialog" class="form-dialog">
+      <div class="dialog-head"><h3>Tambah Kelompok</h3><button class="secondary dialog-close" type="button" aria-label="Tutup">Tutup</button></div>
+      <form id="group-form" class="form-card"><h3 id="group-form-title">Tambah Kelompok</h3><input id="group-edit-id" type="hidden">
       <label for="group-upa">UPA</label><select id="group-upa" required><option value="">Pilih UPA</option></select>
       <label for="group-name">Nama kelompok</label><input id="group-name" maxlength="120" required>
       <label for="group-type">Jenis kelompok</label><select id="group-type" required>
@@ -124,6 +139,7 @@
       <label for="group-leader">Ketua kelompok (opsional)</label><select id="group-leader"><option value="">Belum ditentukan</option></select>
       <div class="actions"><button id="group-submit" class="primary" type="submit">Simpan Kelompok</button><button id="group-cancel" class="secondary" type="button" hidden>Batal edit</button></div>
     </form>
+    </dialog>
     <div class="heading list-heading"><h3>Daftar Kelompok</h3><button id="group-refresh" class="secondary" type="button">Muat ulang</button></div>
     <div class="filters"><input id="group-search" type="search" placeholder="Cari nama kelompok">
       <select id="group-filter-upa"><option value="">Semua UPA</option></select>
@@ -167,6 +183,6 @@
   </section>
 </section>
 </main>
-<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.7.0</footer>
-<script type="module" src="./app.js?v=1.7.0"></script>
+<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.8.0</footer>
+<script type="module" src="./app.js?v=1.8.0"></script>
 </body></html>

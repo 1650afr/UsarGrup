@@ -432,6 +432,7 @@ function resetUpaForm() {
   $("upa-form-title").textContent = "Tambah UPA";
   $("upa-submit").textContent = "Simpan UPA";
   $("upa-cancel").hidden = true;
+  closeFormDialog("upa-dialog");
 }
 
 $("upa-cancel").onclick = resetUpaForm;
@@ -560,7 +561,7 @@ async function loadUpas() {
           $("upa-form-title").textContent = "Edit UPA";
           $("upa-submit").textContent = "Simpan perubahan";
           $("upa-cancel").hidden = false;
-          $("upa-form").scrollIntoView({ behavior: "smooth" });
+          openFormDialog("upa-dialog");
         };
 
         const toggle = document.createElement("button");
@@ -850,6 +851,7 @@ function resetMemberForm() {
   $("member-form-title").textContent = "Tambah Anggota";
   $("member-submit").textContent = "Simpan Anggota";
   $("member-cancel").hidden = true;
+  closeFormDialog("member-dialog");
 }
 
 $("member-cancel").onclick = resetMemberForm;
@@ -1019,7 +1021,7 @@ function renderMembers() {
       $("member-form-title").textContent = "Edit Anggota";
       $("member-submit").textContent = "Simpan perubahan";
       $("member-cancel").hidden = false;
-      $("member-form").scrollIntoView({ behavior: "smooth" });
+      openFormDialog("member-dialog");
     };
 
     const toggle = document.createElement("button");
@@ -1110,6 +1112,7 @@ function resetAdminUPAMemberForm() {
   $("admin-upa-member-form-title").textContent = "Tambah Anggota";
   $("admin-upa-member-submit").textContent = "Simpan Anggota";
   $("admin-upa-member-cancel").hidden = true;
+  closeFormDialog("admin-upa-member-dialog");
 }
 
 $("admin-upa-member-cancel").onclick = resetAdminUPAMemberForm;
@@ -1276,7 +1279,7 @@ function renderAdminUPAMembers() {
       $("admin-upa-member-form-title").textContent = "Edit Anggota";
       $("admin-upa-member-submit").textContent = "Simpan perubahan";
       $("admin-upa-member-cancel").hidden = false;
-      $("admin-upa-member-form").scrollIntoView({ behavior: "smooth" });
+      openFormDialog("admin-upa-member-dialog");
     };
 
     const toggle = document.createElement("button");
@@ -1342,7 +1345,7 @@ async function toggleAdminUPAMember(id, status, button) {
 }
 
 // ======================================================
-// MODUL DATA KELOMPOK v1.7.0
+// MODUL DATA KELOMPOK v1.8.0
 // ======================================================
 
 function groupUPAId() {
@@ -1525,6 +1528,7 @@ function resetGroupForm() {
 
   refreshGroupParentSelector();
   refreshGroupLeaderSelector();
+  closeFormDialog("group-dialog");
 }
 
 $("group-cancel").onclick = resetGroupForm;
@@ -1864,7 +1868,7 @@ function editGroup(group) {
   $("group-submit").textContent = "Simpan perubahan";
   $("group-cancel").hidden = false;
 
-  $("group-form").scrollIntoView({ behavior: "smooth" });
+  openFormDialog("group-dialog");
 }
 
 async function toggleGroup(id, status, button) {
@@ -2144,12 +2148,12 @@ async function toggleGroupMembership(id, status, button) {
 }
 
 // ======================================================
-// AKHIR APP.JS v1.7.0
+// AKHIR APP.JS v1.8.0
 // ======================================================
 
 
 // ======================================================
-// PROFIL PRIBADI ANGGOTA v1.7.0
+// PROFIL PRIBADI ANGGOTA v1.8.0
 // ======================================================
 async function loadMyProfile() {
   const profile = currentProfile || {};
@@ -2191,7 +2195,7 @@ $("profile-form").addEventListener("submit", async event => {
 
 
 // ======================================================
-// MUTASI & RIWAYAT KEANGGOTAAN v1.7.0
+// MUTASI & RIWAYAT KEANGGOTAAN v1.8.0
 // ======================================================
 async function recordMemberHistory(member, action, changes = {}) {
   const event = {
@@ -2222,7 +2226,7 @@ async function showMemberHistory(member) {
     const list = $("member-history-list");
     list.replaceChildren();
     if (!events.length) {
-      list.textContent = "Belum ada riwayat mutasi. Riwayat mulai tercatat sejak v1.7.0 dipasang.";
+      list.textContent = "Belum ada riwayat mutasi. Riwayat mulai tercatat sejak v1.8.0 dipasang.";
       return;
     }
     events.forEach(item => {
@@ -2240,3 +2244,38 @@ async function showMemberHistory(member) {
   }
 }
 $("member-history-close").onclick=()=>{$("member-history-panel").hidden=true;};
+
+
+// ======================================================
+// DIALOG FORM RINGKAS v1.8.0
+// ======================================================
+function openFormDialog(id) {
+  const dialog = $(id);
+  if (dialog && !dialog.open) dialog.showModal();
+}
+function closeFormDialog(id) {
+  const dialog = $(id);
+  if (dialog?.open) dialog.close();
+}
+[
+  ["upa-add-open","upa-dialog",resetUpaForm],
+  ["member-add-open","member-dialog",resetMemberForm],
+  ["admin-upa-member-add-open","admin-upa-member-dialog",resetAdminUPAMemberForm],
+  ["group-add-open","group-dialog",resetGroupForm]
+].forEach(([buttonId,dialogId,reset]) => {
+  $(buttonId).addEventListener("click", () => {
+    reset();
+    openFormDialog(dialogId);
+  });
+});
+document.querySelectorAll(".dialog-close").forEach(button => {
+  button.addEventListener("click", () => {
+    const dialog=button.closest("dialog");
+    if(dialog) dialog.close();
+  });
+});
+document.querySelectorAll(".form-dialog").forEach(dialog => {
+  dialog.addEventListener("click", event => {
+    if(event.target === dialog) dialog.close();
+  });
+});

@@ -1,211 +1,28 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#123f35">
-  <title>UsarGrup</title>
-  <link rel="stylesheet" href="./styles.css?v=2.1.1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123f35"><title>UsarGrup</title>
+<link rel="stylesheet" href="./styles.css?v=2.2.0">
 </head>
 <body>
-<header class="topbar">
-  <div class="mark">U</div><div><h1>UsarGrup</h1><p>Ruang koordinasi dan pembinaan</p></div>
-  <span class="version">v2.1.1</span>
-</header>
-<main class="shell">
-<section id="auth-panel" class="panel auth">
-  <p class="eyebrow">SELAMAT DATANG</p><h2>Masuk ke UsarGrup</h2>
-  <div class="tabs">
-    <button id="tab-login" class="tab active" type="button">Masuk</button>
-    <button id="tab-register" class="tab" type="button">Daftar</button>
-  </div>
-  <form id="login-form">
-    <label for="login-email">Email</label><input id="login-email" type="email" required>
-    <label for="login-password">Kata sandi</label><input id="login-password" type="password" required>
-    <button class="primary full" type="submit">Masuk</button>
-    <button id="forgot-password" class="text-button" type="button">Lupa kata sandi?</button>
-  </form>
-  <form id="register-form" hidden>
-    <label for="register-name">Nama lengkap</label><input id="register-name" required>
-    <label for="register-email">Email</label><input id="register-email" type="email" required>
-    <label for="register-password">Kata sandi (minimal 8 karakter)</label><input id="register-password" type="password" minlength="8" required>
-    <button class="primary full" type="submit">Daftar</button>
-  </form>
-  <p id="auth-message" class="message"></p>
+<header class="topbar"><div class="brand">U</div><div><h1>UsarGrup</h1><p>Administrasi dan pembinaan UPA</p></div><span class="version">v2.2.0</span></header>
+<main class="wrap">
+<section id="auth" class="panel auth">
+<p class="eyebrow">SELAMAT DATANG</p><h2>Masuk ke UsarGrup</h2>
+<div class="tabs"><button id="showLogin" class="tab active">Masuk</button><button id="showRegister" class="tab">Daftar</button></div>
+<form id="loginForm"><label>Email</label><input id="loginEmail" type="email" required autocomplete="username"><label>Kata sandi</label><input id="loginPassword" type="password" required autocomplete="current-password"><button class="primary">Masuk</button><button type="button" id="forgot" class="link">Lupa kata sandi?</button></form>
+<form id="registerForm" hidden><label>Nama lengkap</label><input id="regName" required><label>Email</label><input id="regEmail" type="email" required><label>Kata sandi (minimal 8 karakter)</label><input id="regPassword" type="password" minlength="8" required><button class="primary">Daftar</button></form>
+<p id="authMsg" class="message"></p></section>
+<section id="app" hidden>
+<div class="welcome panel"><div><p class="eyebrow">BERANDA</p><h2 id="hello">Assalamu'alaikum</h2><p id="who" class="muted"></p><p id="roleText" class="muted"></p></div><button id="logout" class="secondary">Keluar</button></div>
+<div id="pending" class="panel" hidden>Akun Anda menunggu verifikasi Admin Utama.</div>
+<section id="dashboard" class="panel">
+<div class="dashhead"><div><p class="eyebrow">RUANG KERJA UPA</p><h2>Menu Utama</h2><p class="muted">Pilih modul yang ingin dibuka.</p></div></div>
+<div id="menu" class="menu-grid"></div>
 </section>
-<section id="app-panel" class="panel" hidden>
-  <div class="welcome"><div><p class="eyebrow">BERANDA</p><h2 id="welcome-title">Assalamu'alaikum</h2><p id="user-email" class="muted"></p></div>
-  <button id="logout-button" class="secondary" type="button">Keluar</button></div>
-  <section id="pending-view" class="status" hidden><h3>Status akun: Menunggu verifikasi</h3><p>Pendaftaran Anda sudah tercatat. Silakan menunggu pemeriksaan Admin Utama.</p></section>
-  <section id="rejected-view" class="status warning" hidden><h3>Status akun: Pendaftaran ditolak</h3><p>Silakan hubungi Admin Utama.</p></section>
-  <section id="inactive-view" class="status warning" hidden><h3>Status akun: Tidak aktif</h3><p>Silakan hubungi Admin Utama.</p></section>
-
-  <section id="home-dashboard" class="home-dashboard" hidden>
-    <div class="home-welcome">
-      <div><p class="eyebrow">ADMINISTRASI UPA</p><h2 id="dashboard-greeting">Selamat datang</h2><p id="dashboard-role-label" class="muted">Dashboard UsarGrup</p></div>
-      <div class="home-avatar">UG</div>
-    </div>
-    <div id="dashboard-summary" class="dashboard-summary">
-      <div class="summary-tile"><span>UPA</span><strong id="summary-upa">—</strong></div>
-      <div class="summary-tile"><span>Anggota</span><strong id="summary-members">—</strong></div>
-    </div>
-    <div class="dashboard-section-title"><h3>Menu Utama</h3><span id="dashboard-menu-caption">Pilih layanan</span></div>
-    <nav id="admin-navigation" class="icon-dashboard" aria-label="Menu utama"></nav>
-    <div class="dashboard-section-title secondary-title"><h3>Akun</h3></div>
-    <nav class="account-shortcuts">
-      <button type="button" id="dashboard-profile-button"><span class="dashboard-icon">👤</span><span>Profil Saya</span></button>
-      <button type="button" id="dashboard-notification-button"><span class="dashboard-icon">🔔</span><span>Notifikasi</span></button>
-    </nav>
-    <p class="dashboard-footer">UsarGrup • by Muhajir, ST</p>
-  </section>
-  <section id="module-placeholder-view" class="panel module-placeholder" hidden>
-    <p class="eyebrow">MODUL USARGRUP</p><h2 id="module-placeholder-title">Modul</h2>
-    <p id="module-placeholder-description" class="muted"></p>
-    <div class="module-status"><span>DALAM PENGEMBANGAN</span><p>Menu sudah disiapkan sebagai bagian dari struktur UsarGrup. Fitur dan penyimpanan Firebase belum diaktifkan.</p></div>
-  </section>
-  <section id="admin-view" hidden><p class="eyebrow">PENGELOLAAN AKUN</p><h2>Panel Admin Utama</h2>
-    <span id="pending-count" class="pill">0 menunggu</span><p class="muted">Periksa pendaftaran anggota.</p>
-    <p id="admin-message" class="message"></p><div id="pending-list" class="stack"></div>
-  </section>
-
-  <section id="upa-admin-view" hidden>
-    <div class="heading"><div><p class="eyebrow">DATA ORGANISASI</p><h2>Data UPA</h2></div><span id="upa-count" class="pill">0 UPA</span></div>
-    <button id="upa-add-open" class="primary add-trigger" type="button">＋ Tambah UPA</button>
-    <dialog id="upa-dialog" class="form-dialog">
-      <div class="dialog-head"><h3>Tambah UPA</h3><button class="secondary dialog-close" type="button" aria-label="Tutup">Tutup</button></div>
-      <form id="upa-form" class="form-card"><h3 id="upa-form-title">Tambah UPA</h3><input id="upa-edit-id" type="hidden">
-      <label for="upa-name">Nama UPA</label><input id="upa-name" maxlength="100" required>
-      <label for="upa-code">Kode UPA</label><input id="upa-code" maxlength="30" required>
-      <label for="upa-region">Wilayah</label><input id="upa-region" maxlength="100">
-      <label for="upa-address">Alamat / keterangan</label><textarea id="upa-address" rows="2" maxlength="500"></textarea>
-      <label for="upa-chair">Ketua UPA</label><input id="upa-chair" maxlength="100">
-      <div class="actions"><button id="upa-submit" class="primary" type="submit">Simpan UPA</button><button id="upa-cancel" class="secondary" type="button" hidden>Batal edit</button></div>
-    </form>
-    </dialog>
-    <div class="heading list-heading"><h3>Daftar UPA</h3><button id="upa-refresh" class="secondary" type="button">Muat ulang</button></div>
-    <p id="upa-message" class="message"></p><div id="upa-list" class="stack"></div>
-  </section>
-
-  <section id="upa-manager-view" hidden><div class="heading"><h2>Pengelolaan Admin UPA</h2><span id="upa-admin-count" class="pill">0 Admin UPA</span></div>
-    <p class="muted">Tetapkan akun anggota aktif sebagai Admin UPA.</p>
-    <form id="upa-admin-form" class="form-card"><h3>Tetapkan Admin UPA</h3>
-      <label for="upa-admin-user">Pilih akun anggota aktif</label><select id="upa-admin-user" required><option value="">Pilih akun anggota</option></select>
-      <label for="upa-admin-select">Pilih UPA</label><select id="upa-admin-select" required><option value="">Pilih UPA</option></select>
-      <button id="upa-admin-submit" class="primary" type="submit">Tetapkan Admin UPA</button>
-    </form>
-    <div class="heading list-heading"><h3>Daftar Admin UPA</h3><button id="upa-admin-refresh" class="secondary" type="button">Muat ulang</button></div>
-    <p id="upa-admin-message" class="message"></p><div id="upa-admin-list" class="stack"></div>
-  </section>
-
-  <section id="members-admin-view" hidden><div class="heading"><h2>Data Anggota</h2><span id="member-count" class="pill">0 anggota</span></div>
-    <button id="member-add-open" class="primary add-trigger" type="button">＋ Tambah Anggota</button>
-    <dialog id="member-dialog" class="form-dialog">
-      <div class="dialog-head"><h3>Tambah Anggota</h3><button class="secondary dialog-close" type="button" aria-label="Tutup">Tutup</button></div>
-      <form id="member-form" class="form-card"><h3 id="member-form-title">Tambah Anggota</h3><input id="member-edit-id" type="hidden">
-      <label for="member-name">Nama lengkap</label><input id="member-name" maxlength="120" required>
-      <label for="member-phone">Nomor HP</label><input id="member-phone" type="tel" maxlength="30">
-      <label for="member-email">Email</label><input id="member-email" type="email" maxlength="150">
-      <label for="member-upa">UPA</label><select id="member-upa" required><option value="">Pilih UPA</option></select>
-      <label for="member-position">Jabatan / peran</label><input id="member-position" maxlength="80">
-      <label for="member-notes">Keterangan</label><textarea id="member-notes" rows="2" maxlength="500"></textarea>
-      <div class="actions"><button id="member-submit" class="primary" type="submit">Simpan Anggota</button><button id="member-cancel" class="secondary" type="button" hidden>Batal edit</button></div>
-    </form>
-    </dialog>
-    <div class="heading list-heading"><h3>Daftar Anggota</h3><button id="member-refresh" class="secondary" type="button">Muat ulang</button></div>
-    <div class="filters"><input id="member-search" type="search" placeholder="Cari nama, HP, atau email">
-      <select id="member-filter-upa"><option value="">Semua UPA</option></select>
-      <select id="member-filter-status"><option value="">Semua status</option><option value="active">Aktif</option><option value="inactive">Tidak aktif</option></select></div>
-    <p id="member-message" class="message"></p><div id="member-list" class="stack"></div>
-    <section id="member-history-panel" class="form-card" hidden>
-      <div class="heading"><h3 id="member-history-title">Riwayat Anggota</h3><button id="member-history-close" class="secondary" type="button">Tutup</button></div>
-      <p class="muted">Catatan mutasi UPA, perubahan data, dan perubahan status sejak v2.1.1.</p>
-      <div id="member-history-list" class="stack"></div>
-    </section>
-  </section>
-
-  <section id="admin-upa-view" hidden><div class="heading"><div><p class="eyebrow">PANEL PENGELOLA UPA</p><h2 id="admin-upa-title">Admin UPA</h2></div><span id="admin-upa-status" class="pill">Aktif</span></div>
-    <div class="status"><h3>UPA yang dikelola</h3><p id="admin-upa-identity" class="muted">Memuat identitas UPA...</p></div>
-    <section id="admin-upa-members-view"><div class="heading"><h2>Anggota UPA Saya</h2><span id="admin-upa-member-count" class="pill">0 anggota</span></div>
-      <button id="admin-upa-member-add-open" class="primary add-trigger" type="button">＋ Tambah Anggota</button>
-    <dialog id="admin-upa-member-dialog" class="form-dialog">
-      <div class="dialog-head"><h3>Tambah Anggota</h3><button class="secondary dialog-close" type="button" aria-label="Tutup">Tutup</button></div>
-      <form id="admin-upa-member-form" class="form-card"><h3 id="admin-upa-member-form-title">Tambah Anggota</h3><input id="admin-upa-member-edit-id" type="hidden">
-        <label for="admin-upa-member-name">Nama lengkap</label><input id="admin-upa-member-name" maxlength="120" required>
-        <label for="admin-upa-member-phone">Nomor HP</label><input id="admin-upa-member-phone" type="tel" maxlength="30">
-        <label for="admin-upa-member-email">Email</label><input id="admin-upa-member-email" type="email" maxlength="150">
-        <label for="admin-upa-member-position">Jabatan / peran</label><input id="admin-upa-member-position" maxlength="80">
-        <label for="admin-upa-member-notes">Keterangan</label><textarea id="admin-upa-member-notes" rows="2" maxlength="500"></textarea>
-        <div class="actions"><button id="admin-upa-member-submit" class="primary" type="submit">Simpan Anggota</button><button id="admin-upa-member-cancel" class="secondary" type="button" hidden>Batal edit</button></div>
-      </form>
-    </dialog>
-      <div class="heading list-heading"><h3>Daftar Anggota UPA</h3><button id="admin-upa-member-refresh" class="secondary" type="button">Muat ulang</button></div>
-      <div class="filters"><input id="admin-upa-member-search" type="search" placeholder="Cari nama, HP, atau email">
-        <select id="admin-upa-member-filter-status"><option value="">Semua status</option><option value="active">Aktif</option><option value="inactive">Tidak aktif</option></select></div>
-      <p id="admin-upa-member-message" class="message"></p><div id="admin-upa-member-list" class="stack"></div>
-    </section>
-  </section>
-
-  <!-- Modul kelompok dan keanggotaan kelompok -->
-  <section id="groups-admin-view" hidden>
-    <div class="heading"><div><p class="eyebrow">STRUKTUR PEMBINAAN</p><h2>Pengelolaan Kelompok</h2></div><span id="group-count" class="pill">0 kelompok</span></div>
-    <p class="muted">Kelola kelompok berdasarkan UPA dan tingkatan pembinaan.</p>
-    <button id="group-add-open" class="primary add-trigger" type="button">＋ Tambah Kelompok</button>
-    <dialog id="group-dialog" class="form-dialog">
-      <div class="dialog-head"><h3>Tambah Kelompok</h3><button class="secondary dialog-close" type="button" aria-label="Tutup">Tutup</button></div>
-      <form id="group-form" class="form-card"><h3 id="group-form-title">Tambah Kelompok</h3><input id="group-edit-id" type="hidden">
-      <label for="group-upa">UPA</label><select id="group-upa" required><option value="">Pilih UPA</option></select>
-      <label for="group-name">Nama kelompok</label><input id="group-name" maxlength="120" required>
-      <label for="group-type">Jenis kelompok</label><select id="group-type" required>
-        <option value="">Pilih jenis</option><option>Muntazhim</option><option>Muntashib</option><option>Muayyid</option><option>Muhib</option><option>Tamhidi</option>
-      </select>
-      <label for="group-parent">Kelompok induk (opsional)</label><select id="group-parent"><option value="">Tidak ada</option></select>
-      <label for="group-leader">Ketua kelompok (opsional)</label><select id="group-leader"><option value="">Belum ditentukan</option></select>
-      <div class="actions"><button id="group-submit" class="primary" type="submit">Simpan Kelompok</button><button id="group-cancel" class="secondary" type="button" hidden>Batal edit</button></div>
-    </form>
-    </dialog>
-    <div class="heading list-heading"><h3>Daftar Kelompok</h3><button id="group-refresh" class="secondary" type="button">Muat ulang</button></div>
-    <div class="filters"><input id="group-search" type="search" placeholder="Cari nama kelompok">
-      <select id="group-filter-upa"><option value="">Semua UPA</option></select>
-      <select id="group-filter-type"><option value="">Semua jenis</option><option>Muntazhim</option><option>Muntashib</option><option>Muayyid</option><option>Muhib</option><option>Tamhidi</option></select>
-      <select id="group-filter-status"><option value="">Semua status</option><option value="active">Aktif</option><option value="inactive">Tidak aktif</option></select></div>
-    <p id="group-message" class="message"></p><div id="group-list" class="stack"></div>
-    <section id="group-membership-view" class="form-card" hidden><div class="heading"><h3 id="membership-group-title">Keanggotaan Kelompok</h3><button id="membership-close" class="secondary" type="button">Tutup</button></div>
-      <form id="group-membership-form"><input id="membership-group-id" type="hidden">
-        <label for="membership-member">Pilih anggota aktif</label><select id="membership-member" required><option value="">Pilih anggota</option></select>
-        <button id="membership-submit" class="primary" type="submit">Tambahkan ke kelompok</button>
-      </form>
-      <p id="membership-message" class="message"></p><div class="heading"><h3>Anggota kelompok</h3><span id="group-membership-count" class="pill">0 anggota</span></div>
-      <div id="group-membership-list" class="stack"></div>
-    </section>
-  </section>
-
-  <section id="member-view" hidden><p class="eyebrow">BERANDA ANGGOTA</p><h2>Menu UsarGrup</h2>
-
-    <section id="member-profile-view" class="form-card" hidden>
-      <div class="heading"><div><p class="eyebrow">AKUN SAYA</p><h3>Profil Saya</h3></div><span class="pill">Anggota</span></div>
-      <p class="muted">Nama dan email dikelola admin. Anda hanya dapat memperbarui nomor HP dan alamat.</p>
-      <div class="status">
-        <p><b>Nama lengkap</b><br><span id="profile-name">-</span></p>
-        <p><b>Email akun</b><br><span id="profile-email">-</span></p>
-        <p><b>Peran akun</b><br><span id="profile-role">anggota</span></p>
-      </div>
-      <form id="profile-form">
-        <label for="profile-phone">Nomor HP</label>
-        <input id="profile-phone" type="tel" maxlength="30" autocomplete="tel">
-        <label for="profile-address">Alamat tempat tinggal</label>
-        <textarea id="profile-address" rows="3" maxlength="300" autocomplete="street-address"></textarea>
-        <button id="profile-submit" class="primary" type="submit">Simpan Profil</button>
-      </form>
-      <p id="profile-message" class="message" aria-live="polite"></p>
-    </section>
-
-    <div class="menu-grid"><article><b>01</b><h3>Data UPA dan Grup</h3><p>Identitas dan struktur kelompok</p></article>
-      <article><b>02</b><h3>Data Anggota</h3><p>Profil dan keanggotaan</p></article>
-      <article><b>03</b><h3>Mutabaah Yaumiyah</h3><p>Pencatatan amalan harian</p></article>
-      <article><b>04</b><h3>Jadwal Kegiatan</h3><p>Agenda dan kalender</p></article><article><b>05</b><h3>Absensi</h3><p>Kehadiran kegiatan</p></article></div>
-  </section>
+<section id="view" class="panel" hidden><div class="viewhead"><div><p class="eyebrow">MODUL USARGRUP</p><h2 id="viewTitle">Modul</h2></div><button id="back" class="secondary">← Beranda</button></div><div id="viewBody"></div></section>
 </section>
-</main>
-<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v2.1.1</footer>
-<script type="module" src="./app.js?v=2.1.1"></script>
+</main><footer>UsarGrup • by Muhajir, ST • v2.2.0</footer>
+<script type="module" src="./app.js?v=2.2.0"></script>
 </body></html>

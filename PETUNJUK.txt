@@ -1,26 +1,44 @@
-USARGRUP v2.1.0 — DASHBOARD IKON
-=================================
-Paket lengkap: index.html, app.js, styles.css, firebase.js, firestore.rules.
+USARGRUP v2.2.0 — PAKET IMPLEMENTASI
 
-Perubahan:
-- Mengganti sidebar dengan dashboard ikon ala aplikasi mobile banking.
-- Tampilan grid 3 kolom pada HP dan 4 kolom pada layar lebih lebar.
-- Dashboard diterapkan untuk Admin Utama, Admin UPA, dan akun anggota.
-- Menu difilter secara awal berdasarkan role yang sudah dikenali aplikasi.
-- Tombol Profil Saya dan Notifikasi disediakan.
-- Modul yang belum dibuat tetap berlabel DALAM PENGEMBANGAN.
-- Fungsi data yang sudah ada dan Firestore Rules disertakan dari paket v2.0.0.
+Isi paket:
+- index.html, app.js, styles.css
+- firebase.js (konfigurasi proyek Firebase usargrup yang telah ada)
+- firestore.rules (aturan contoh terintegrasi untuk modul paket ini)
 
-Penting:
-- Tingkatan Tamhidi, Muayyid, Muntashib, Muntazhim serta relasi binaan belum diimplementasikan
-  ke skema Firestore/Roles. Matriks akses yang disepakati adalah spesifikasi tahap berikutnya,
-  bukan kontrol keamanan yang sudah aktif.
-- Data ringkasan dashboard masih placeholder (—), tidak mengambil angka fiktif dari database.
-- Hak akses menu selain fungsi lama belum boleh dianggap aktif.
-- Uji semua role dan fungsi lama setelah pemasangan.
+PENTING — BACA SEBELUM DIPASANG
+1. Buat cadangan repositori dan Firestore Rules aktif terlebih dahulu.
+2. Paket ini adalah implementasi awal modul dan belum boleh dianggap production-ready sebelum langkah uji di bawah selesai.
+3. Jangan menimpa Rules aktif secara langsung tanpa membandingkan dengan aturan yang sedang dipakai. File firestore.rules di paket ini menggambarkan izin untuk fitur yang dibuat dan perlu digabungkan dengan aturan produksi Anda, bukan bukti bahwa rules telah diterapkan.
+4. Deploy melalui GitHub Pages: unggah file ke repositori 1650afr/UsarGrup setelah backup. Firebase project tetap usargrup.
+5. Periksa Firebase Authentication: Email/Password aktif.
+6. Di dokumen users/{uid}, akun pembimbing/Admin UPA perlu memiliki status=active, role sesuai (pembimbing/admin_upa/admin_utama), dan upaId. Untuk pengisian langsung Muntazhim, profile juga harus memiliki memberId dan jenjang="Muntazhim". Hubungan akun-anggota belum otomatis dibuat oleh modul pengelolaan akun lama.
+7. Tautan Mutabaah Muntashib adalah bearer link 256-bit, berlaku sesuai tanggal yang ditetapkan pembimbing. Jangan kirim tautan ke grup umum. Jika tautan bocor, pembimbing harus menonaktifkan dokumen mutabaah_links/{token} di Firestore.
+8. WhatsApp memerlukan nomor HP format internasional; cek nomor anggota sebelum mengirim.
 
-Pemasangan:
-1. Cadangkan versi v2.0.0.
-2. Ganti index.html, app.js, styles.css di root GitHub.
-3. Pertahankan firebase.js dan firestore.rules yang aktif jika tidak berubah.
-4. Deploy GitHub Pages lalu uji login Admin Utama, Admin UPA, dan anggota.
+FITUR DALAM PAKET
+- Login/pendaftaran akun Firebase.
+- Menu dashboard responsif.
+- Daftar anggota/kelompok dan ringkasan UPA.
+- Mutabaah Muntashib melalui token unik tanpa login.
+- Rancangan input langsung Mutabaah Muntazhim melalui akun terhubung.
+- Hafalan dan Absensi dengan jenjang terpisah.
+- Rekap dasar.
+
+BATASAN YANG HARUS DIKETAHUI
+- Beberapa menu referensi (Program Kerja, Materi Tarbiyah, Reminder, Laporan lengkap, export, pohon binaan/timeline) masih berupa tampilan ringkasan, belum seluruh fungsi referensi dipindahkan.
+- Belum ada Cloud Functions; tautan publik menggunakan aturan Firestore berbasis token acak. Untuk produksi, pertimbangkan endpoint server untuk validasi tambahan, pembatasan spam dan pencabutan token.
+- Pengiriman WhatsApp membuka aplikasi/halaman WhatsApp dengan teks siap kirim; pengguna tetap menekan tombol kirim.
+- Perlu penyelarasan schema role dan mapping memberId dengan data pengguna yang sudah ada.
+
+UJI WAJIB SEBELUM DIGUNAKAN
+A. Login Admin Utama; pastikan hanya dapat mengelola UPA yang benar.
+B. Pembimbing membuat tautan untuk anggota Muntashib di UPA sendiri.
+C. Buka tautan di browser incognito tanpa login; isi tanggal dalam periode; cek dokumen mutabaah_entries.
+D. Coba tanggal di luar periode dan token tidak valid/nonaktif; keduanya harus ditolak.
+E. Login Muntazhim dengan users/{uid}.memberId, users/{uid}.upaId, users/{uid}.jenjang="Muntazhim"; uji input langsung.
+F. Input hafalan dan absensi untuk kedua jenjang; periksa rekap terpisah.
+G. Uji akun UPA lain dan akun tanpa peran; pastikan tidak dapat membaca/menulis data lintas UPA.
+H. Uji update/delete data; pastikan aturan sesuai kebijakan organisasi.
+
+STATUS
+Paket dibuat sebagai baseline implementasi untuk diperiksa dan diuji. Tidak ada klaim bahwa perubahan telah diunggah ke GitHub, Rules telah di-deploy, atau pengujian Firebase live telah berhasil.

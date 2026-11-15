@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#123f35">
   <title>UsarGrup</title>
-  <link rel="stylesheet" href="./styles.css?v=2.0.0">
+  <link rel="stylesheet" href="./styles.css?v=2.1.0">
 </head>
 <body>
 <header class="topbar">
   <div class="mark">U</div><div><h1>UsarGrup</h1><p>Ruang koordinasi dan pembinaan</p></div>
-  <span class="version">v2.0.0</span>
+  <span class="version">v2.1.0</span>
 </header>
 <main class="shell">
 <section id="auth-panel" class="panel auth">
@@ -40,13 +40,24 @@
   <section id="rejected-view" class="status warning" hidden><h3>Status akun: Pendaftaran ditolak</h3><p>Silakan hubungi Admin Utama.</p></section>
   <section id="inactive-view" class="status warning" hidden><h3>Status akun: Tidak aktif</h3><p>Silakan hubungi Admin Utama.</p></section>
 
-  <aside id="admin-sidebar" class="admin-sidebar" hidden>
-    <div class="sidebar-brand"><div class="sidebar-logo">🏛️</div><div><strong>UsarGrup</strong><small>Administrasi UPA</small></div></div>
-    <nav id="admin-navigation" class="admin-navigation" aria-label="Menu utama"></nav>
-    <div class="sidebar-footer">v2.0.0<br><strong>by Muhajir, ST</strong></div>
-  </aside>
-  <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Buka menu" aria-expanded="false" hidden>☰ Menu</button>
-  <div id="sidebar-scrim" class="sidebar-scrim" hidden></div>
+  <section id="home-dashboard" class="home-dashboard" hidden>
+    <div class="home-welcome">
+      <div><p class="eyebrow">ADMINISTRASI UPA</p><h2 id="dashboard-greeting">Selamat datang</h2><p id="dashboard-role-label" class="muted">Dashboard UsarGrup</p></div>
+      <div class="home-avatar">UG</div>
+    </div>
+    <div id="dashboard-summary" class="dashboard-summary">
+      <div class="summary-tile"><span>UPA</span><strong id="summary-upa">—</strong></div>
+      <div class="summary-tile"><span>Anggota</span><strong id="summary-members">—</strong></div>
+    </div>
+    <div class="dashboard-section-title"><h3>Menu Utama</h3><span id="dashboard-menu-caption">Pilih layanan</span></div>
+    <nav id="admin-navigation" class="icon-dashboard" aria-label="Menu utama"></nav>
+    <div class="dashboard-section-title secondary-title"><h3>Akun</h3></div>
+    <nav class="account-shortcuts">
+      <button type="button" id="dashboard-profile-button"><span class="dashboard-icon">👤</span><span>Profil Saya</span></button>
+      <button type="button" id="dashboard-notification-button"><span class="dashboard-icon">🔔</span><span>Notifikasi</span></button>
+    </nav>
+    <p class="dashboard-footer">UsarGrup • by Muhajir, ST</p>
+  </section>
   <section id="module-placeholder-view" class="panel module-placeholder" hidden>
     <p class="eyebrow">MODUL USARGRUP</p><h2 id="module-placeholder-title">Modul</h2>
     <p id="module-placeholder-description" class="muted"></p>
@@ -107,7 +118,7 @@
     <p id="member-message" class="message"></p><div id="member-list" class="stack"></div>
     <section id="member-history-panel" class="form-card" hidden>
       <div class="heading"><h3 id="member-history-title">Riwayat Anggota</h3><button id="member-history-close" class="secondary" type="button">Tutup</button></div>
-      <p class="muted">Catatan mutasi UPA, perubahan data, dan perubahan status sejak v2.0.0.</p>
+      <p class="muted">Catatan mutasi UPA, perubahan data, dan perubahan status sejak v2.1.0.</p>
       <div id="member-history-list" class="stack"></div>
     </section>
   </section>
@@ -195,6 +206,6 @@
   </section>
 </section>
 </main>
-<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v2.0.0</footer>
-<script type="module" src="./app.js?v=2.0.0"></script>
+<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v2.1.0</footer>
+<script type="module" src="./app.js?v=2.1.0"></script>
 </body></html>

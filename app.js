@@ -89,14 +89,12 @@ function canManageGroups() {
 }
 
 function hideViews() {
-  if ($("admin-sidebar")) $("admin-sidebar").hidden = true;
-  if ($("sidebar-toggle")) $("sidebar-toggle").hidden = true;
-  if ($("sidebar-scrim")) $("sidebar-scrim").hidden = true;
-  document.body.classList.remove("has-sidebar","sidebar-open");
+  if ($("home-dashboard")) $("home-dashboard").hidden = true;
   if ($("module-placeholder-view")) $("module-placeholder-view").hidden = true;
   [
     "pending-view",
     "rejected-view",
+    "home-dashboard",
     "module-placeholder-view",
     "inactive-view",
     "admin-view",
@@ -129,84 +127,102 @@ const MODULE_INFO = {
   reports_binaan: ["Laporan Binaan Saya", "Laporan perkembangan binaan sesuai hak akses."]
 };
 
+const MODULE_INFO = {
+  program:["Program Kerja","Perencanaan program dan pemantauan pelaksanaan kegiatan UPA."],
+  materials:["Materi Tarbiyah","Pengelolaan materi dan bahan pembinaan."],
+  cadres:["Data Kader","Pendataan kader dan perkembangan keanggotaan."],
+  binaan:["Binaan","Pengelolaan data binaan dan hubungan pembinaan."],
+  statistics:["Statistik","Ringkasan data dan perkembangan UPA."],
+  mutabaah:["Mutabaah Yaumiah","Pengisian dan pemantauan mutabaah harian."],
+  memorization:["Hafalan Al-Qur'an","Pencatatan dan pemantauan hafalan Al-Qur'an."],
+  attendance:["Absensi Khusus","Pencatatan kehadiran kegiatan dan pertemuan."],
+  reminders:["Reminder & Jadwal","Pengingat dan agenda kegiatan organisasi."],
+  reports:["Laporan UPA","Rekapitulasi dan unduhan laporan UPA."],
+  reports_binaan:["Laporan Binaan Saya","Laporan perkembangan binaan sesuai hak akses."]
+};
+
+const DASHBOARD_ITEMS = [
+  ["upa-admin-view","Identitas UPA","🏛️","view","Organisasi"],
+  ["members-admin-view","Struktur Anggota","👥","view","Organisasi"],
+  ["groups-admin-view","Data Kelompok","🧩","view","Organisasi"],
+  ["program","Program Kerja","📋","module","Organisasi"],
+  ["materials","Materi Tarbiyah","📚","module","Pembinaan"],
+  ["cadres","Data Kader","🧑‍🤝‍🧑","module","Pembinaan"],
+  ["binaan","Binaan","🌱","module","Pembinaan"],
+  ["statistics","Statistik","📊","module","Informasi"],
+  ["mutabaah","Mutabaah Yaumiah","✅","module","Pembinaan"],
+  ["memorization","Hafalan Al-Qur'an","📖","module","Pembinaan"],
+  ["attendance","Absensi Khusus","🗓️","module","Aktivitas"],
+  ["reminders","Reminder & Jadwal","🔔","module","Aktivitas"],
+  ["reports","Laporan UPA","📄","module","Laporan"],
+  ["reports_binaan","Laporan Binaan Saya","📑","module","Laporan"],
+  ["admin-view","Verifikasi Pendaftaran","🛡️","view","Administrasi"],
+  ["upa-manager-view","Pengelolaan Admin UPA","🔐","view","Administrasi"],
+  ["admin-upa-view","Kelola Anggota UPA","👥","view","Administrasi"]
+];
+
 function setAdminNavigation(role) {
-  const nav = $("admin-navigation");
+  const nav=$("admin-navigation");
   nav.replaceChildren();
-  const common = [
-    ["dashboard","Beranda","🏠","module"],
-    ["upa-admin-view","Identitas UPA","👤","view"],
-    ["members-admin-view","Struktur Anggota","👥","view"],
-    ["groups-admin-view","Data Kelompok","🧩","view"],
-    ["program","Program Kerja","📋","module"],
-    ["materials","Materi Tarbiyah","📚","module"],
-    ["cadres","Data Kader","🧑‍🤝‍🧑","module"],
-    ["binaan","Binaan","🌳","module"],
-    ["statistics","Statistik","📊","module"],
-    ["mutabaah","Mutabaah Yaumiah","✅","module"],
-    ["memorization","Hafalan Al-Qur'an","📖","module"],
-    ["attendance","Absensi Khusus","🗒️","module"],
-    ["reminders","Reminder & Jadwal","🔔","module"],
-    ["reports","Laporan UPA","📝","module"],
-    ["reports_binaan","Laporan Binaan Saya","🌱","module"]
-  ];
-  const rootExtra = [
-    ["admin-view","Verifikasi Pendaftaran","🛡️","view"],
-    ["upa-manager-view","Pengelolaan Admin UPA","🔐","view"]
-  ];
-  const upaItems = [
-    ["admin-upa-view","Kelola Anggota UPA","👥","view"]
-  ];
-  const items = role === "admin_utama" ? [...common,...rootExtra] : [...common.filter(x=>!["members-admin-view"].includes(x[0])),...upaItems];
-  items.forEach(([target,label,emoji,kind]) => {
+  const allowed = role==="admin_utama"
+    ? DASHBOARD_ITEMS.filter(x=>x[0]!=="admin-upa-view")
+    : role==="admin_upa"
+      ? DASHBOARD_ITEMS.filter(x=>!["admin-view","upa-manager-view","members-admin-view"].includes(x[0]))
+      : DASHBOARD_ITEMS.filter(x=>!["upa-admin-view","members-admin-view","groups-admin-view","admin-view","upa-manager-view","admin-upa-view"].includes(x[0]));
+  allowed.forEach(([target,label,emoji,kind,group])=>{
     const button=document.createElement("button");
-    button.type="button"; button.className="sidebar-link";
-    button.dataset.adminView=target; button.dataset.moduleKind=kind;
-    const icon=document.createElement("span"); icon.className="sidebar-icon"; icon.textContent=emoji;
-    const text=document.createElement("span"); text.textContent=label;
+    button.type="button";
+    button.className="dashboard-menu-item";
+    button.dataset.adminView=target;
+    button.dataset.moduleKind=kind;
+    const icon=document.createElement("span");icon.className="dashboard-icon";icon.textContent=emoji;
+    const text=document.createElement("span");text.className="dashboard-menu-label";text.textContent=label;
     button.append(icon,text);
     button.addEventListener("click",()=>activateAdminView(target,kind));
     nav.append(button);
   });
-  $("admin-sidebar").hidden=false;
-  $("sidebar-toggle").hidden=false;
-  document.body.classList.add("has-sidebar");
-  activateAdminView("dashboard","module");
+  $("home-dashboard").hidden=false;
+  $("dashboard-role-label").textContent=role==="admin_utama"?"Admin Utama":role==="admin_upa"?"Admin UPA":"Area Anggota";
+  $("dashboard-greeting").textContent="Selamat datang di UsarGrup";
+  $("summary-upa").textContent=role==="admin_utama"?"Semua":"UPA Anda";
+  $("summary-members").textContent="—";
+  $("module-placeholder-view").hidden=true;
+  document.querySelectorAll("#admin-navigation button").forEach(b=>b.classList.remove("active"));
 }
 
-function activateAdminView(target, kind) {
-  const sectionIds=["module-placeholder-view","admin-view","upa-admin-view","upa-manager-view","members-admin-view","admin-upa-view","groups-admin-view"];
+function activateAdminView(target,kind) {
+  $("home-dashboard").hidden=true;
+  const sectionIds=["module-placeholder-view","admin-view","upa-admin-view","upa-manager-view","members-admin-view","admin-upa-view","groups-admin-view","member-view","member-profile-view"];
   sectionIds.forEach(id=>{if($(id)) $(id).hidden=true;});
-  let activeTarget=target;
   if(kind==="module" || MODULE_INFO[target]) {
     const info=MODULE_INFO[target] || MODULE_INFO.dashboard;
     $("module-placeholder-title").textContent=info[0];
     $("module-placeholder-description").textContent=info[1];
     $("module-placeholder-view").hidden=false;
-    activeTarget="module-placeholder-view";
   } else if($(target)) {
     $(target).hidden=false;
   }
-  document.querySelectorAll("#admin-navigation button").forEach(button=>{
-    const active=button.dataset.adminView===target;
-    button.classList.toggle("active",active);
-    button.setAttribute("aria-current",active?"page":"false");
-  });
-  document.body.classList.remove("sidebar-open");
-  $("sidebar-scrim").hidden=true;
-  $("sidebar-toggle").setAttribute("aria-expanded","false");
+  const back=document.createElement("button");
+  back.type="button";back.className="dashboard-back-button";back.textContent="← Kembali ke Beranda";
+  back.onclick=()=>{ $("module-placeholder-view").hidden=true; sectionIds.forEach(id=>{if($(id)) $(id).hidden=true;}); $("home-dashboard").hidden=false; };
+  const existing=$("dashboard-back-button");
+  if(existing) existing.remove();
+  const host=kind==="module"?$("module-placeholder-view"):$(target);
+  if(host) {back.id="dashboard-back-button";host.prepend(back);}
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-$("sidebar-toggle").addEventListener("click",()=>{
-  document.body.classList.toggle("sidebar-open");
-  const open=document.body.classList.contains("sidebar-open");
-  $("sidebar-toggle").setAttribute("aria-expanded",open?"true":"false");
-  $("sidebar-scrim").hidden=!open;
+$("dashboard-profile-button").addEventListener("click",()=>{
+  $("home-dashboard").hidden=true;
+  $("member-view").hidden=false;
+  $("member-profile-view").hidden=false;
+  if(typeof loadMyProfile==="function") loadMyProfile();
 });
-$("sidebar-scrim").addEventListener("click",()=>{
-  document.body.classList.remove("sidebar-open");
-  $("sidebar-scrim").hidden=true;
-  $("sidebar-toggle").setAttribute("aria-expanded","false");
+$("dashboard-notification-button").addEventListener("click",()=>{
+  $("module-placeholder-title").textContent="Notifikasi";
+  $("module-placeholder-description").textContent="Notifikasi akan ditampilkan di sini setelah modul notifikasi dikembangkan.";
+  $("module-placeholder-view").hidden=false;
+  $("home-dashboard").hidden=true;
 });
 
 function showStatus(status) {
@@ -402,8 +418,7 @@ onAuthStateChanged(auth, async user => {
       }
 
     } else {
-      $("member-view").hidden = false;
-      $("member-profile-view").hidden = false;
+      setAdminNavigation(currentProfile.role || "anggota");
       await loadMyProfile();
     }
 

@@ -1,29 +1,26 @@
-USARGRUP v1.8.0 — TAMPILAN FORM RINGKAS
-========================================
+USARGRUP v2.1.0 — DASHBOARD IKON
+=================================
 Paket lengkap: index.html, app.js, styles.css, firebase.js, firestore.rules.
 
-PERUBAHAN
-- Form Tambah/Edit UPA dibuka dalam dialog popup.
-- Form Tambah/Edit Anggota Admin Utama dibuka dalam dialog popup.
-- Form Tambah/Edit Anggota Admin UPA dibuka dalam dialog popup.
-- Form Tambah/Edit Kelompok dibuka dalam dialog popup.
-- Form tidak lagi memenuhi halaman utama; daftar data lebih cepat terlihat.
-- Tombol Tutup, klik area luar dialog, dan tombol Batal Edit disediakan.
-- Data, aturan, dan hak akses v1.7.0 dipertahankan.
+Perubahan:
+- Mengganti sidebar dengan dashboard ikon ala aplikasi mobile banking.
+- Tampilan grid 3 kolom pada HP dan 4 kolom pada layar lebih lebar.
+- Dashboard diterapkan untuk Admin Utama, Admin UPA, dan akun anggota.
+- Menu difilter secara awal berdasarkan role yang sudah dikenali aplikasi.
+- Tombol Profil Saya dan Notifikasi disediakan.
+- Modul yang belum dibuat tetap berlabel DALAM PENGEMBANGAN.
+- Fungsi data yang sudah ada dan Firestore Rules disertakan dari paket v2.0.0.
 
-PEMASANGAN
-1. Cadangkan versi 1.7.0.
-2. Ganti index.html, app.js, styles.css di root repository.
-3. firebase.js dan firestore.rules ikut disertakan untuk kelengkapan paket;
-   tidak perlu mengubahnya jika sama dengan konfigurasi dan Rules v1.7.0 yang sudah aktif.
-4. Pastikan GitHub Pages selesai deploy, lalu muat ulang aplikasi (hard refresh).
+Penting:
+- Tingkatan Tamhidi, Muayyid, Muntashib, Muntazhim serta relasi binaan belum diimplementasikan
+  ke skema Firestore/Roles. Matriks akses yang disepakati adalah spesifikasi tahap berikutnya,
+  bukan kontrol keamanan yang sudah aktif.
+- Data ringkasan dashboard masih placeholder (—), tidak mengambil angka fiktif dari database.
+- Hak akses menu selain fungsi lama belum boleh dianggap aktif.
+- Uji semua role dan fungsi lama setelah pemasangan.
 
-PENGUJIAN
-- Admin Utama: tambah, edit, tutup, batal, simpan UPA.
-- Admin Utama: tambah/edit anggota.
-- Admin UPA: tambah/edit anggota di UPA sendiri.
-- Pengelola kelompok: tambah/edit kelompok.
-- Pastikan daftar langsung terlihat saat dialog ditutup.
-- Uji fitur riwayat v1.7.0 tetap berjalan.
-
-Catatan: pemeriksaan statis dilakukan pada JavaScript dan ZIP. Pengujian browser/Firebase langsung belum dilakukan.
+Pemasangan:
+1. Cadangkan versi v2.0.0.
+2. Ganti index.html, app.js, styles.css di root GitHub.
+3. Pertahankan firebase.js dan firestore.rules yang aktif jika tidak berubah.
+4. Deploy GitHub Pages lalu uji login Admin Utama, Admin UPA, dan anggota.

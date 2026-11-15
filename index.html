@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#123f35">
   <title>UsarGrup</title>
-  <link rel="stylesheet" href="./styles.css?v=1.8.0">
+  <link rel="stylesheet" href="./styles.css?v=1.9.0">
 </head>
 <body>
 <header class="topbar">
   <div class="mark">U</div><div><h1>UsarGrup</h1><p>Ruang koordinasi dan pembinaan</p></div>
-  <span class="version">v1.8.0</span>
+  <span class="version">v1.9.0</span>
 </header>
 <main class="shell">
 <section id="auth-panel" class="panel auth">
@@ -40,6 +40,13 @@
   <section id="rejected-view" class="status warning" hidden><h3>Status akun: Pendaftaran ditolak</h3><p>Silakan hubungi Admin Utama.</p></section>
   <section id="inactive-view" class="status warning" hidden><h3>Status akun: Tidak aktif</h3><p>Silakan hubungi Admin Utama.</p></section>
 
+  <nav id="admin-navigation" class="admin-navigation" aria-label="Menu pengelolaan" hidden>
+    <button type="button" data-admin-view="admin-view">Pendaftaran</button>
+    <button type="button" data-admin-view="upa-admin-view">Data UPA</button>
+    <button type="button" data-admin-view="upa-manager-view">Admin UPA</button>
+    <button type="button" data-admin-view="members-admin-view">Data Anggota</button>
+    <button type="button" data-admin-view="groups-admin-view">Kelompok</button>
+  </nav>
   <section id="admin-view" hidden><p class="eyebrow">PENGELOLAAN AKUN</p><h2>Panel Admin Utama</h2>
     <span id="pending-count" class="pill">0 menunggu</span><p class="muted">Periksa pendaftaran anggota.</p>
     <p id="admin-message" class="message"></p><div id="pending-list" class="stack"></div>
@@ -95,7 +102,7 @@
     <p id="member-message" class="message"></p><div id="member-list" class="stack"></div>
     <section id="member-history-panel" class="form-card" hidden>
       <div class="heading"><h3 id="member-history-title">Riwayat Anggota</h3><button id="member-history-close" class="secondary" type="button">Tutup</button></div>
-      <p class="muted">Catatan mutasi UPA, perubahan data, dan perubahan status sejak v1.8.0.</p>
+      <p class="muted">Catatan mutasi UPA, perubahan data, dan perubahan status sejak v1.9.0.</p>
       <div id="member-history-list" class="stack"></div>
     </section>
   </section>
@@ -183,6 +190,6 @@
   </section>
 </section>
 </main>
-<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.8.0</footer>
-<script type="module" src="./app.js?v=1.8.0"></script>
+<footer>UsarGrup • Dibuat Oleh: Muhajir,ST • v1.9.0</footer>
+<script type="module" src="./app.js?v=1.9.0"></script>
 </body></html>

@@ -89,6 +89,7 @@ function canManageGroups() {
 }
 
 function hideViews() {
+  if ($("admin-navigation")) $("admin-navigation").hidden = true;
   [
     "pending-view",
     "rejected-view",
@@ -106,6 +107,52 @@ function hideViews() {
   ].forEach(id => {
     if ($(id)) $(id).hidden = true;
   });
+}
+
+function setAdminNavigation(role) {
+  const nav = $("admin-navigation");
+  const sections = [
+    "admin-view", "upa-admin-view", "upa-manager-view",
+    "members-admin-view", "admin-upa-view", "groups-admin-view"
+  ];
+  sections.forEach(id => { if ($(id)) $(id).hidden = true; });
+  nav.replaceChildren();
+
+  const items = role === "admin_utama"
+    ? [
+        ["admin-view", "Pendaftaran"],
+        ["upa-admin-view", "Data UPA"],
+        ["upa-manager-view", "Admin UPA"],
+        ["members-admin-view", "Data Anggota"],
+        ["groups-admin-view", "Kelompok"]
+      ]
+    : [
+        ["admin-upa-view", "Anggota UPA"],
+        ["groups-admin-view", "Kelompok"]
+      ];
+
+  items.forEach(([view, label]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.dataset.adminView = view;
+    button.addEventListener("click", () => activateAdminView(view));
+    nav.append(button);
+  });
+  nav.hidden = false;
+  activateAdminView(items[0][0]);
+}
+
+function activateAdminView(viewId) {
+  [
+    "admin-view", "upa-admin-view", "upa-manager-view",
+    "members-admin-view", "admin-upa-view", "groups-admin-view"
+  ].forEach(id => { if ($(id)) $(id).hidden = id !== viewId; });
+  document.querySelectorAll("#admin-navigation button").forEach(button => {
+    button.classList.toggle("active", button.dataset.adminView === viewId);
+    button.setAttribute("aria-current", button.dataset.adminView === viewId ? "page" : "false");
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function showStatus(status) {
@@ -273,11 +320,7 @@ onAuthStateChanged(auth, async user => {
     }
 
     if (role === "admin_utama") {
-      $("admin-view").hidden = false;
-      $("upa-admin-view").hidden = false;
-      $("upa-manager-view").hidden = false;
-      $("members-admin-view").hidden = false;
-      $("groups-admin-view").hidden = false;
+      setAdminNavigation("admin_utama");
 
       await Promise.all([
         loadPending(),
@@ -293,8 +336,7 @@ onAuthStateChanged(auth, async user => {
         return;
       }
 
-      $("admin-upa-view").hidden = false;
-      $("groups-admin-view").hidden = false;
+      setAdminNavigation("admin_upa");
 
       await loadAssignedUPA();
 
@@ -1345,7 +1387,7 @@ async function toggleAdminUPAMember(id, status, button) {
 }
 
 // ======================================================
-// MODUL DATA KELOMPOK v1.8.0
+// MODUL DATA KELOMPOK v1.9.0
 // ======================================================
 
 function groupUPAId() {
@@ -2148,12 +2190,12 @@ async function toggleGroupMembership(id, status, button) {
 }
 
 // ======================================================
-// AKHIR APP.JS v1.8.0
+// AKHIR APP.JS v1.9.0
 // ======================================================
 
 
 // ======================================================
-// PROFIL PRIBADI ANGGOTA v1.8.0
+// PROFIL PRIBADI ANGGOTA v1.9.0
 // ======================================================
 async function loadMyProfile() {
   const profile = currentProfile || {};
@@ -2195,7 +2237,7 @@ $("profile-form").addEventListener("submit", async event => {
 
 
 // ======================================================
-// MUTASI & RIWAYAT KEANGGOTAAN v1.8.0
+// MUTASI & RIWAYAT KEANGGOTAAN v1.9.0
 // ======================================================
 async function recordMemberHistory(member, action, changes = {}) {
   const event = {
@@ -2226,7 +2268,7 @@ async function showMemberHistory(member) {
     const list = $("member-history-list");
     list.replaceChildren();
     if (!events.length) {
-      list.textContent = "Belum ada riwayat mutasi. Riwayat mulai tercatat sejak v1.8.0 dipasang.";
+      list.textContent = "Belum ada riwayat mutasi. Riwayat mulai tercatat sejak v1.9.0 dipasang.";
       return;
     }
     events.forEach(item => {
@@ -2247,7 +2289,7 @@ $("member-history-close").onclick=()=>{$("member-history-panel").hidden=true;};
 
 
 // ======================================================
-// DIALOG FORM RINGKAS v1.8.0
+// DIALOG FORM RINGKAS v1.9.0
 // ======================================================
 function openFormDialog(id) {
   const dialog = $(id);

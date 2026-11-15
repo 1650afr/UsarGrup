@@ -46,3 +46,34 @@
   .admin-navigation{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:9px}
   .admin-navigation button{padding:11px 7px;font-size:14px}
 }
+
+/* v2.0.0 — responsive sidebar */
+.topbar{position:relative;z-index:20}
+.admin-sidebar{position:fixed;z-index:40;left:0;top:0;bottom:0;width:286px;display:flex;flex-direction:column;background:#10352f;color:#e4efeb;box-shadow:8px 0 28px #092a2420;overflow:hidden}
+.sidebar-brand{display:flex;align-items:center;gap:14px;padding:24px 20px 20px;border-bottom:1px solid #ffffff18;min-height:112px}
+.sidebar-logo{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;background:#17634f;font-size:34px}
+.sidebar-brand strong{display:block;font-size:23px;color:#fff}
+.sidebar-brand small{display:block;color:#a9c2b9;font-size:14px;margin-top:2px}
+.admin-navigation{display:flex;flex-direction:column;gap:5px;padding:12px;overflow-y:auto;overscroll-behavior:contain}
+.sidebar-link{display:flex;align-items:center;gap:13px;width:100%;min-height:48px;padding:11px 13px;border:0;border-radius:13px;background:transparent;color:#c9d9d4;text-align:left;font-weight:650;font-size:15px}
+.sidebar-link:hover{background:#ffffff12;color:#fff}
+.sidebar-link.active{background:#19594f;color:#fff}
+.sidebar-icon{width:27px;flex:0 0 27px;font-size:19px;text-align:center}
+.sidebar-footer{margin-top:auto;padding:15px 12px 20px;text-align:center;color:#92ada4;border-top:1px solid #ffffff18;font-size:12px;line-height:1.8}
+.sidebar-footer strong{color:#c8d8d2}
+body.has-sidebar .shell{width:min(920px,calc(100% - 330px));margin:30px 22px 30px 308px}
+body.has-sidebar .topbar{padding-left:308px}
+.sidebar-toggle{display:none;position:fixed;z-index:50;right:14px;bottom:18px;border:0;border-radius:999px;padding:13px 18px;background:#17634f;color:#fff;font-weight:750;box-shadow:0 6px 20px #0003}
+.sidebar-scrim{position:fixed;inset:0;background:#061d19a8;z-index:35}
+.module-placeholder{min-height:250px}
+.module-status{margin-top:26px;padding:18px;border:1px solid #e4eae7;border-radius:16px;background:#f7faf8}
+.module-status span{font-size:11px;letter-spacing:1.4px;font-weight:800;color:#9b6b24}
+.module-status p{margin:8px 0 0;color:#6c7d75}
+@media(max-width:760px){
+ body.has-sidebar .shell{width:calc(100% - 24px);margin:18px 12px 90px}
+ body.has-sidebar .topbar{padding:15px 16px}
+ .admin-sidebar{width:min(82vw,310px);transform:translateX(-105%);transition:transform .22s ease}
+ body.sidebar-open .admin-sidebar{transform:translateX(0)}
+ .sidebar-toggle{display:block}
+ .sidebar-scrim:not([hidden]){display:block}
+}

@@ -89,10 +89,15 @@ function canManageGroups() {
 }
 
 function hideViews() {
-  if ($("admin-navigation")) $("admin-navigation").hidden = true;
+  if ($("admin-sidebar")) $("admin-sidebar").hidden = true;
+  if ($("sidebar-toggle")) $("sidebar-toggle").hidden = true;
+  if ($("sidebar-scrim")) $("sidebar-scrim").hidden = true;
+  document.body.classList.remove("has-sidebar","sidebar-open");
+  if ($("module-placeholder-view")) $("module-placeholder-view").hidden = true;
   [
     "pending-view",
     "rejected-view",
+    "module-placeholder-view",
     "inactive-view",
     "admin-view",
     "upa-admin-view",
@@ -109,51 +114,100 @@ function hideViews() {
   });
 }
 
+const MODULE_INFO = {
+  dashboard: ["Beranda", "Ringkasan aktivitas UPA, statistik anggota, dan informasi terbaru."],
+  program: ["Program Kerja", "Perencanaan program dan pemantauan pelaksanaan kegiatan UPA."],
+  materials: ["Materi Tarbiyah", "Pengelolaan materi dan bahan pembinaan."],
+  cadres: ["Data Kader", "Pendataan kader dan perkembangan keanggotaan."],
+  binaan: ["Binaan", "Pengelolaan data binaan dan hubungan pembinaan."],
+  statistics: ["Statistik", "Ringkasan data dan perkembangan UPA."],
+  mutabaah: ["Mutabaah Yaumiah", "Pengisian dan pemantauan mutabaah harian."],
+  memorization: ["Hafalan Al-Qur'an", "Pencatatan dan pemantauan hafalan Al-Qur'an."],
+  attendance: ["Absensi Khusus", "Pencatatan kehadiran kegiatan dan pertemuan."],
+  reminders: ["Reminder & Jadwal", "Pengingat dan agenda kegiatan organisasi."],
+  reports: ["Laporan UPA", "Rekapitulasi dan unduhan laporan UPA."],
+  reports_binaan: ["Laporan Binaan Saya", "Laporan perkembangan binaan sesuai hak akses."]
+};
+
 function setAdminNavigation(role) {
   const nav = $("admin-navigation");
-  const sections = [
-    "admin-view", "upa-admin-view", "upa-manager-view",
-    "members-admin-view", "admin-upa-view", "groups-admin-view"
-  ];
-  sections.forEach(id => { if ($(id)) $(id).hidden = true; });
   nav.replaceChildren();
-
-  const items = role === "admin_utama"
-    ? [
-        ["admin-view", "Pendaftaran"],
-        ["upa-admin-view", "Data UPA"],
-        ["upa-manager-view", "Admin UPA"],
-        ["members-admin-view", "Data Anggota"],
-        ["groups-admin-view", "Kelompok"]
-      ]
-    : [
-        ["admin-upa-view", "Anggota UPA"],
-        ["groups-admin-view", "Kelompok"]
-      ];
-
-  items.forEach(([view, label]) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = label;
-    button.dataset.adminView = view;
-    button.addEventListener("click", () => activateAdminView(view));
+  const common = [
+    ["dashboard","Beranda","🏠","module"],
+    ["upa-admin-view","Identitas UPA","👤","view"],
+    ["members-admin-view","Struktur Anggota","👥","view"],
+    ["groups-admin-view","Data Kelompok","🧩","view"],
+    ["program","Program Kerja","📋","module"],
+    ["materials","Materi Tarbiyah","📚","module"],
+    ["cadres","Data Kader","🧑‍🤝‍🧑","module"],
+    ["binaan","Binaan","🌳","module"],
+    ["statistics","Statistik","📊","module"],
+    ["mutabaah","Mutabaah Yaumiah","✅","module"],
+    ["memorization","Hafalan Al-Qur'an","📖","module"],
+    ["attendance","Absensi Khusus","🗒️","module"],
+    ["reminders","Reminder & Jadwal","🔔","module"],
+    ["reports","Laporan UPA","📝","module"],
+    ["reports_binaan","Laporan Binaan Saya","🌱","module"]
+  ];
+  const rootExtra = [
+    ["admin-view","Verifikasi Pendaftaran","🛡️","view"],
+    ["upa-manager-view","Pengelolaan Admin UPA","🔐","view"]
+  ];
+  const upaItems = [
+    ["admin-upa-view","Kelola Anggota UPA","👥","view"]
+  ];
+  const items = role === "admin_utama" ? [...common,...rootExtra] : [...common.filter(x=>!["members-admin-view"].includes(x[0])),...upaItems];
+  items.forEach(([target,label,emoji,kind]) => {
+    const button=document.createElement("button");
+    button.type="button"; button.className="sidebar-link";
+    button.dataset.adminView=target; button.dataset.moduleKind=kind;
+    const icon=document.createElement("span"); icon.className="sidebar-icon"; icon.textContent=emoji;
+    const text=document.createElement("span"); text.textContent=label;
+    button.append(icon,text);
+    button.addEventListener("click",()=>activateAdminView(target,kind));
     nav.append(button);
   });
-  nav.hidden = false;
-  activateAdminView(items[0][0]);
+  $("admin-sidebar").hidden=false;
+  $("sidebar-toggle").hidden=false;
+  document.body.classList.add("has-sidebar");
+  activateAdminView("dashboard","module");
 }
 
-function activateAdminView(viewId) {
-  [
-    "admin-view", "upa-admin-view", "upa-manager-view",
-    "members-admin-view", "admin-upa-view", "groups-admin-view"
-  ].forEach(id => { if ($(id)) $(id).hidden = id !== viewId; });
-  document.querySelectorAll("#admin-navigation button").forEach(button => {
-    button.classList.toggle("active", button.dataset.adminView === viewId);
-    button.setAttribute("aria-current", button.dataset.adminView === viewId ? "page" : "false");
+function activateAdminView(target, kind) {
+  const sectionIds=["module-placeholder-view","admin-view","upa-admin-view","upa-manager-view","members-admin-view","admin-upa-view","groups-admin-view"];
+  sectionIds.forEach(id=>{if($(id)) $(id).hidden=true;});
+  let activeTarget=target;
+  if(kind==="module" || MODULE_INFO[target]) {
+    const info=MODULE_INFO[target] || MODULE_INFO.dashboard;
+    $("module-placeholder-title").textContent=info[0];
+    $("module-placeholder-description").textContent=info[1];
+    $("module-placeholder-view").hidden=false;
+    activeTarget="module-placeholder-view";
+  } else if($(target)) {
+    $(target).hidden=false;
+  }
+  document.querySelectorAll("#admin-navigation button").forEach(button=>{
+    const active=button.dataset.adminView===target;
+    button.classList.toggle("active",active);
+    button.setAttribute("aria-current",active?"page":"false");
   });
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  document.body.classList.remove("sidebar-open");
+  $("sidebar-scrim").hidden=true;
+  $("sidebar-toggle").setAttribute("aria-expanded","false");
+  window.scrollTo({top:0,behavior:"smooth"});
 }
+
+$("sidebar-toggle").addEventListener("click",()=>{
+  document.body.classList.toggle("sidebar-open");
+  const open=document.body.classList.contains("sidebar-open");
+  $("sidebar-toggle").setAttribute("aria-expanded",open?"true":"false");
+  $("sidebar-scrim").hidden=!open;
+});
+$("sidebar-scrim").addEventListener("click",()=>{
+  document.body.classList.remove("sidebar-open");
+  $("sidebar-scrim").hidden=true;
+  $("sidebar-toggle").setAttribute("aria-expanded","false");
+});
 
 function showStatus(status) {
   const id = ({

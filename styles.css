@@ -78,7 +78,7 @@ body.has-sidebar .topbar{padding-left:308px}
  .sidebar-scrim:not([hidden]){display:block}
 }
 
-/* v2.1.0 — mobile banking style icon dashboard */
+/* v2.1.1 — mobile banking style icon dashboard */
 body.has-sidebar .shell{width:min(920px,calc(100% - 32px));margin:24px auto}
 body.has-sidebar .topbar{padding-left:24px}
 .home-dashboard{max-width:920px;margin:20px auto;padding:0 4px}

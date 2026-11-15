@@ -127,20 +127,6 @@ const MODULE_INFO = {
   reports_binaan: ["Laporan Binaan Saya", "Laporan perkembangan binaan sesuai hak akses."]
 };
 
-const MODULE_INFO = {
-  program:["Program Kerja","Perencanaan program dan pemantauan pelaksanaan kegiatan UPA."],
-  materials:["Materi Tarbiyah","Pengelolaan materi dan bahan pembinaan."],
-  cadres:["Data Kader","Pendataan kader dan perkembangan keanggotaan."],
-  binaan:["Binaan","Pengelolaan data binaan dan hubungan pembinaan."],
-  statistics:["Statistik","Ringkasan data dan perkembangan UPA."],
-  mutabaah:["Mutabaah Yaumiah","Pengisian dan pemantauan mutabaah harian."],
-  memorization:["Hafalan Al-Qur'an","Pencatatan dan pemantauan hafalan Al-Qur'an."],
-  attendance:["Absensi Khusus","Pencatatan kehadiran kegiatan dan pertemuan."],
-  reminders:["Reminder & Jadwal","Pengingat dan agenda kegiatan organisasi."],
-  reports:["Laporan UPA","Rekapitulasi dan unduhan laporan UPA."],
-  reports_binaan:["Laporan Binaan Saya","Laporan perkembangan binaan sesuai hak akses."]
-};
-
 const DASHBOARD_ITEMS = [
   ["upa-admin-view","Identitas UPA","🏛️","view","Organisasi"],
   ["members-admin-view","Struktur Anggota","👥","view","Organisasi"],

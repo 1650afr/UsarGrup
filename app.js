@@ -51,7 +51,26 @@ function menuBuild(){
  if(role()==="admin_utama")items.push(["verifikasi","🛡️","Verifikasi Akun","Persetujuan pengguna"],["adminupa","🔐","Admin UPA","Penetapan pengelola"]);
  $("menu").replaceChildren(...items.map(([id,ico,n,sub])=>{const b=document.createElement("button");b.className="menu-item";b.innerHTML=`<span class="ico">${ico}</span><strong>${esc(n)}</strong><small>${esc(sub)}</small>`;b.onclick=()=>openModule(id,n);return b}));
 }
-async function loadBase(){const [us,ms,gs]=await Promise.all([getDocs(collection(db,"upas")),getDocs(collection(db,"members")),getDocs(collection(db,"groups"))]);upas=us.docs.map(d=>({id:d.id,...d.data()})).filter(x=>canUPA(x.id));members=ms.docs.map(d=>({id:d.id,...d.data()})).filter(x=>canUPA(x.upaId));groups=gs.docs.map(d=>({id:d.id,...d.data()})).filter(x=>canUPA(x.upaId));}
+async function loadBase(){
+ const adminUtama=role()==="admin_utama";
+ const upaId=profile?.upaId||"";
+ let us,ms,gs;
+ if(adminUtama){
+  [us,ms,gs]=await Promise.all([getDocs(collection(db,"upas")),getDocs(collection(db,"members")),getDocs(collection(db,"groups"))]);
+ }else if(upaId){
+  const u=await getDoc(doc(db,"upas",upaId));
+  us={docs:u.exists()?[{id:u.id,data:()=>u.data()}]:[]};
+  [ms,gs]=await Promise.all([
+   getDocs(query(collection(db,"members"),where("upaId","==",upaId))),
+   getDocs(query(collection(db,"groups"),where("upaId","==",upaId)))
+  ]);
+ }else{
+  us=ms=gs={docs:[]};
+ }
+ upas=us.docs.map(d=>({id:d.id,...d.data()}));
+ members=ms.docs.map(d=>({id:d.id,...d.data()}));
+ groups=gs.docs.map(d=>({id:d.id,...d.data()}));
+}
 function selectUPA(id=""){return `<select id="fUpa"><option value="">Pilih UPA</option>${upas.map(x=>`<option value="${esc(x.id)}" ${x.id===id?"selected":""}>${esc(x.namaUPA||x.nama||x.kodeUPA||x.id)}</option>`).join("")}</select>`}
 function selectMember(id=""){return `<select id="fMember"><option value="">Pilih anggota</option>${members.filter(x=>x.status!=="inactive").map(x=>`<option value="${esc(x.id)}" ${x.id===id?"selected":""}>${esc(x.nama)} — ${esc(x.jabatan||"")}</option>`).join("")}</select>`}
 function dateField(id="fDate"){return `<input id="${id}" type="date" value="${new Date().toISOString().slice(0,10)}" required>`}
@@ -70,7 +89,24 @@ case "adminupa":return adminUPA(title);
 case "program":case "materi":case "kader":case "reminder":case "laporan":case "laporan_binaan":return simpleModule(id,title);
 default:return show(title,`<div class="empty">Modul belum tersedia.</div>`);
 }}catch(e){show(title,`<p class="message">${esc(e.message)}</p>`)}}
-function identitas(t){show(t,`<div class="card"><h3>Identitas UPA</h3>${upas.map(x=>`<p><b>${esc(x.namaUPA||x.nama)}</b><br>Kode: ${esc(x.kodeUPA||"—")}<br>Wilayah: ${esc(x.wilayah||"—")}<br>${esc(x.alamat||"")}</p>`).join("")||'<p class="empty">Belum ada UPA yang dapat diakses.</p>'}</div>`)}
+function identitas(t){
+ const editable=role()==="admin_utama";
+ const form=editable?`<form id="upaForm" class="card"><h3 id="upaFormTitle">Tambah Identitas UPA</h3><input id="upaEditId" type="hidden">
+ <div class="formgrid"><label>Nama UPA<input id="upaNama" maxlength="100" required></label><label>Kode UPA<input id="upaKode" maxlength="30" required></label>
+ <label>Wilayah / Provinsi<input id="upaWilayah" maxlength="120"></label><label>Alamat / Keterangan<textarea id="upaAlamat" maxlength="500"></textarea></label><label>Ketua UPA<input id="upaKetua" maxlength="120"></label></div>
+ <div class="actions"><button class="primary" type="submit">Simpan UPA</button><button class="secondary" id="upaReset" type="button">Bersihkan</button></div><p id="upaMsg" class="message"></p></form>`:"";
+ show(t,`${form}<div class="card"><h3>Identitas UPA</h3><div id="upaRows"></div></div>`);
+ const draw=()=>{$("upaRows").innerHTML=upas.map(x=>`<article class="card"><h3>${esc(x.namaUPA||x.nama||"UPA")}</h3><p><b>Kode:</b> ${esc(x.kodeUPA||"—")}<br><b>Wilayah:</b> ${esc(x.wilayah||"—")}<br><b>Alamat:</b> ${esc(x.alamat||"—")}<br><b>Ketua:</b> ${esc(x.ketuaUPA||"—")}<br><b>Status:</b> ${esc(x.status||"active")}</p>${editable?`<div class="actions"><button class="secondary" data-upa-edit="${esc(x.id)}">Edit</button><button class="secondary" data-upa-state="${esc(x.id)}">${x.status==="inactive"?"Aktifkan":"Nonaktifkan"}</button></div>`:""}</article>`).join("")||'<p class="empty">Belum ada data UPA.</p>'};
+ draw();
+ if(!editable)return;
+ const reset=()=>{$("upaForm").reset();$("upaEditId").value="";$("upaFormTitle").textContent="Tambah Identitas UPA"};
+ $("upaReset").onclick=reset;
+ $("upaForm").onsubmit=async e=>{e.preventDefault();const id=$("upaEditId").value;const payload={namaUPA:$("upaNama").value.trim(),kodeUPA:$("upaKode").value.trim(),wilayah:$("upaWilayah").value.trim(),alamat:$("upaAlamat").value.trim(),ketuaUPA:$("upaKetua").value.trim(),updatedAt:serverTimestamp()};
+  try{if(id)await updateDoc(doc(db,"upas",id),payload);else await addDoc(collection(db,"upas"),{...payload,status:"active",createdBy:user.uid,createdAt:serverTimestamp()});await loadBase();identitas(t)}catch(e2){say("upaMsg","Gagal menyimpan: "+e2.message)}
+ };
+ document.querySelectorAll("[data-upa-edit]").forEach(b=>b.onclick=()=>{const x=upas.find(v=>v.id===b.dataset.upaEdit);if(!x)return;$("upaEditId").value=x.id;$("upaNama").value=x.namaUPA||"";$("upaKode").value=x.kodeUPA||"";$("upaWilayah").value=x.wilayah||"";$("upaAlamat").value=x.alamat||"";$("upaKetua").value=x.ketuaUPA||"";$("upaFormTitle").textContent="Edit Identitas UPA";$("upaForm").scrollIntoView({behavior:"smooth"})});
+ document.querySelectorAll("[data-upa-state]").forEach(b=>b.onclick=async()=>{const x=upas.find(v=>v.id===b.dataset.upaState);if(!x)return;try{await updateDoc(doc(db,"upas",x.id),{status:x.status==="inactive"?"active":"inactive",updatedAt:serverTimestamp()});await loadBase();identitas(t)}catch(e){alert("Gagal mengubah status: "+e.message)}});
+}
 function anggota(t){show(t,`${isAdmin()?`<form id="memberForm" class="card"><h3>Tambah anggota</h3><div class="formgrid"><label>Nama<input id="mNama" required></label><label>Nomor HP<input id="mHp"></label><label>Email<input id="mEmail" type="email"></label><label>Jenjang/Jabatan<select id="mLevel"><option>Muntashib</option><option>Muntazhim</option><option>Muayyid</option><option>Tamhidi</option></select></label><label>UPA${selectUPA()}</label></div><button class="primary">Simpan anggota</button><p id="mMsg" class="message"></p></form>`:""}<div class="card"><h3>Daftar Anggota (${members.length})</h3><input id="mSearch" placeholder="Cari anggota"><div id="memberRows"></div></div>`);
  const draw=()=>{$("memberRows").innerHTML=`<div class="tablewrap"><table><tr><th>Nama</th><th>Jenjang</th><th>UPA</th><th>Status</th></tr>${members.filter(m=>(m.nama||"").toLowerCase().includes(($("mSearch")?.value||"").toLowerCase())).map(m=>`<tr><td>${esc(m.nama)}</td><td>${esc(m.jabatan||m.level||"—")}</td><td>${esc(m.namaUPA||m.upaId)}</td><td>${esc(m.status||"active")}</td></tr>`).join("")}</table></div>`};draw();$("mSearch").oninput=draw;
  if(isAdmin())$("memberForm").onsubmit=async e=>{e.preventDefault();const upa=$("fUpa").value;if(!upa||!canUPA(upa))return say("mMsg","Pilih UPA yang sesuai.");try{await addDoc(collection(db,"members"),{nama:$("mNama").value.trim(),nomorHP:$("mHp").value.trim(),email:$("mEmail").value.trim(),upaId:upa,jabatan:$("mLevel").value,keterangan:"",status:"active",createdBy:user.uid,createdAt:serverTimestamp()});say("mMsg","Anggota tersimpan.",true);await anggota(t)}catch(x){say("mMsg",x.message)}};

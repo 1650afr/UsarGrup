@@ -2,6 +2,9 @@ import {auth,db} from "./firebase.js";
 import {createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,onAuthStateChanged,signOut,updateProfile} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 import {collection,doc,getDoc,getDocs,query,where,addDoc,setDoc,updateDoc,serverTimestamp,Timestamp,deleteDoc} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const $=id=>document.getElementById(id);
+window.addEventListener("error",e=>{const m=document.getElementById("authMsg");if(m&&!m.textContent)m.textContent="Kesalahan aplikasi: "+(e.message||"muat ulang halaman");});
+window.addEventListener("unhandledrejection",e=>{const m=document.getElementById("authMsg");if(m)m.textContent="Proses aplikasi gagal: "+(e.reason?.message||String(e.reason||"kesalahan tidak diketahui"));});
+
 let user=null,profile=null,upas=[],members=[],groups=[],activeModule="";
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const say=(id,t,ok=false)=>{const e=$(id);if(e){e.textContent=t;e.className="message"+(ok?" ok":"");}};
@@ -11,7 +14,29 @@ const canUPA=id=>role()==="admin_utama"||(role()==="admin_upa"&&profile.upaId===
 const rup=(d)=>d?.toDate?d.toDate().toLocaleString("id-ID"):"—";
 function toggleAuth(login){$("loginForm").hidden=!login;$("registerForm").hidden=login;$("showLogin").classList.toggle("active",login);$("showRegister").classList.toggle("active",!login)}
 $("showLogin").onclick=()=>toggleAuth(true);$("showRegister").onclick=()=>toggleAuth(false);
-$("loginForm").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPassword").value);say("authMsg","")}catch(x){say("authMsg",x.message)}};
+$("loginForm").onsubmit=async e=>{
+ e.preventDefault();
+ const btn=$("loginForm").querySelector('button[type="submit"],button:not([type])');
+ const email=$("loginEmail").value.trim(), password=$("loginPassword").value;
+ if(!email||!password){say("authMsg","Email dan kata sandi wajib diisi.");return}
+ if(btn){btn.disabled=true;btn.textContent="Memproses..."}
+ say("authMsg","Menghubungkan ke Firebase...");
+ try{
+   await signInWithEmailAndPassword(auth,email,password);
+   say("authMsg","Login berhasil. Memuat akun...",true);
+ }catch(x){
+   const messages={
+    "auth/invalid-credential":"Email atau kata sandi tidak sesuai.",
+    "auth/user-not-found":"Akun dengan email tersebut tidak ditemukan.",
+    "auth/wrong-password":"Kata sandi tidak sesuai.",
+    "auth/invalid-email":"Format email tidak valid.",
+    "auth/too-many-requests":"Terlalu banyak percobaan. Coba lagi beberapa saat.",
+    "auth/network-request-failed":"Koneksi internet bermasalah. Periksa jaringan lalu coba lagi.",
+    "auth/operation-not-allowed":"Login Email/Kata Sandi belum diaktifkan di Firebase Authentication."
+   };
+   say("authMsg",messages[x.code]||("Login gagal: "+(x.message||x.code)));
+ }finally{if(btn){btn.disabled=false;btn.textContent="Masuk"}}
+};
 $("registerForm").onsubmit=async e=>{e.preventDefault();try{const c=await createUserWithEmailAndPassword(auth,$("regEmail").value.trim(),$("regPassword").value);await updateProfile(c.user,{displayName:$("regName").value.trim()});await setDoc(doc(db,"users",c.user.uid),{uid:c.user.uid,displayName:$("regName").value.trim(),email:c.user.email,status:"pending",requestedRole:"anggota",createdAt:serverTimestamp(),updatedAt:serverTimestamp()});say("authMsg","Pendaftaran berhasil. Menunggu verifikasi.",true)}catch(x){say("authMsg",x.message)}};
 $("forgot").onclick=async()=>{if(!$("loginEmail").value.trim())return say("authMsg","Isi email terlebih dahulu.");try{await sendPasswordResetEmail(auth,$("loginEmail").value.trim());say("authMsg","Jika email terdaftar, tautan reset dikirim.",true)}catch(x){say("authMsg",x.message)}};
 $("logout").onclick=()=>signOut(auth);$("back").onclick=home;
